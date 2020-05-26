@@ -18,5 +18,5 @@ INVOICE_RETENTION = timedelta(weeks=1)  # how long to keep invoice requests and 
 
 # Bounty
 AWARD_TIMEDELTA = timedelta(days=3)
-AWARD_TIMEDELTA = timedelta(seconds=30)
+## AWARD_TIMEDELTA = timedelta(seconds=30)
 CLAIM_TIMEDELTA = timedelta(days=7)
