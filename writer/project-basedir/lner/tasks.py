@@ -595,14 +595,14 @@ class Runner(object):
 def run_many():
     start_time = time.time()
     runner = Runner()
-    total_prerun_processing_times_array = []
+    total_pre_processing_times_array = []
     total_run_processing_times_array = []
 
     num_runs = 10
     for _ in range(num_runs):
         node_list = LightningNode.objects.all()
 
-        prerun_processing_times_array = []
+        pre_processing_times_array = []
         run_processing_times_array = []
 
         # initialize checkpoints
@@ -625,8 +625,8 @@ def run_many():
             # run
             t = runner.run_one_node(node)
 
-            prerun_processing_times_array.append(p)
-            total_prerun_processing_times_array.append(p)
+            pre_processing_times_array.append(p)
+            total_pre_processing_times_array.append(p)
 
             run_processing_times_array.append(t)
             total_run_processing_times_array.append(t)
@@ -642,9 +642,9 @@ def run_many():
 
             sleep(BETWEEN_NODES_DELAY)
 
-        logger.debug("Pre-run Max was {:.3f} seconds".format(max(prerun_processing_times_array)))
-        logger.debug("Pre-run Avg was {:.3f} seconds".format(sum(prerun_processing_times_array) / len(prerun_processing_times_array)))
-        logger.debug("Pre-run Min was {:.3f} seconds".format(min(prerun_processing_times_array)))
+        logger.debug("Pre-run Max was {:.3f} seconds".format(max(pre_processing_times_array)))
+        logger.debug("Pre-run Avg was {:.3f} seconds".format(sum(pre_processing_times_array) / len(pre_processing_times_array)))
+        logger.debug("Pre-run Min was {:.3f} seconds".format(min(pre_processing_times_array)))
         logger.debug("\n")
         logger.debug("Run Max was {:.3f} seconds".format(max(run_processing_times_array)))
         logger.debug("Run Avg was {:.3f} seconds".format(sum(run_processing_times_array) / len(run_processing_times_array)))
@@ -654,16 +654,16 @@ def run_many():
 
 
     logger.info("\n")
-    logger.info("Cumulative pre-run total was {:.3f} seconds".format(sum(prerun_processing_times_array)))
-    logger.info("Cumulative pre-run max was {:.3f} seconds".format(max(prerun_processing_times_array)))
-    logger.info("Cumulative pre-run avg was {:.3f} seconds".format(sum(prerun_processing_times_array) / len(prerun_processing_times_array)))
-    logger.info("Cumulative pre-run min was {:.3f} seconds".format(min(prerun_processing_times_array)))
+    logger.info("Cumulative pre-run total was {:.3f} seconds".format(sum(total_pre_processing_times_array)))
+    logger.info("Cumulative pre-run max was {:.3f} seconds".format(max(total_pre_processing_times_array)))
+    logger.info("Cumulative pre-run avg was {:.3f} seconds".format(sum(total_pre_processing_times_array) / len(total_pre_processing_times_array)))
+    logger.info("Cumulative pre-run min was {:.3f} seconds".format(min(total_pre_processing_times_array)))
 
     logger.info("\n")
-    logger.info("Cumulative total was {:.3f} seconds".format(sum(run_processing_times_array)))
-    logger.info("Cumulative max was {:.3f} seconds".format(max(run_processing_times_array)))
-    logger.info("Cumulative avg was {:.3f} seconds".format(sum(run_processing_times_array) / len(run_processing_times_array)))
-    logger.info("Cumulative min was {:.3f} seconds".format(min(run_processing_times_array)))
+    logger.info("Cumulative total was {:.3f} seconds".format(sum(total_run_processing_times_array)))
+    logger.info("Cumulative max was {:.3f} seconds".format(max(total_run_processing_times_array)))
+    logger.info("Cumulative avg was {:.3f} seconds".format(sum(total_run_processing_times_array) / len(total_run_processing_times_array)))
+    logger.info("Cumulative min was {:.3f} seconds".format(min(total_run_processing_times_array)))
 
     logger.info("\n")
     processing_wall_time = time.time() - start_time
