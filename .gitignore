@@ -32,3 +32,6 @@ writer-env
 # deployment files
 reader/project-basedir/live
 writer/project-basedir/live
+
+# log
+log
