@@ -46,7 +46,7 @@ def human_time(ts):
 
 
 def sleep(seconds):
-    logger.info("Sleeping for {} seconds".format(seconds))
+    logger.debug("Sleeping for {} seconds".format(seconds))
     time.sleep(seconds)
 
 
@@ -78,20 +78,20 @@ def award_bounty(question_post):
     b_list = Bounty.objects.filter(post_id=question_post.id, is_active=True).order_by(
         'activation_time'
     )
-    logger.info("{} active bounties found".format(len(b_list)))
+    logger.debug("{} active bounties found".format(len(b_list)))
     if len(b_list) == 0:
         return
 
     # 2. find earliest bounty start time
     earliest_bounty = b_list.first()
-    logger.info("earliest_bounty start time is {}".format(earliest_bounty.activation_time))
+    logger.debug("earliest_bounty start time is {}".format(earliest_bounty.activation_time))
 
     # 3. check award time to see if bounty is still in the game
     if earliest_bounty.award_time:
         deadline = earliest_bounty.award_time + settings.AWARD_TIMEDELTA
         if timezone.now() > deadline:
             # TODO: check if CLAIM_TIMEDELTA is passed and make available to the next top answer
-            logger.info("The deadline is already passed, so don't change the winner")
+            logger.debug("The deadline is already passed, so don't change the winner")
             return
     else:
         logger.info("This bounty has no awards yet")
@@ -143,7 +143,7 @@ class CheckpointHelper(object):
         self.add_index = invoice.add_index
         self.creation_date = creation_date
 
-        logger.info(
+        logger.debug(
                 (
                     "Processing invoice of node={} at add_index={} creation_date={}"
                 ).format(
@@ -158,7 +158,7 @@ class CheckpointHelper(object):
 
     def set_checkpoint(self, checkpoint_value, action_type=None, action_id=None):
         if self.invoice.checkpoint_value == checkpoint_value:
-            logger.info("Invoice already has this checkpoint {}".format(self))
+            logger.debug("Invoice already has this checkpoint {}".format(self))
         else:
             if action_type and action_id:
                 self.invoice.performed_action_type = action_type
@@ -206,7 +206,7 @@ class Runner(object):
             self.all_invoices_from_db[node][invoice_obj.add_index] = invoice_obj
 
         processing_wall_time = time.time() - start_time
-        logger.info(
+        logger.debug(
             (
                 "Pre-run took {:.3f} seconds\n"
             ).format(
@@ -227,7 +227,7 @@ class Runner(object):
 
         if node not in self.all_invoices_from_db:
             invoice_list_from_db = {}
-            logger.info("DB has no invoices for this node")
+            logger.debug("DB has no invoices for this node")
         else:
             invoice_list_from_db = self.all_invoices_from_db[node]
 
@@ -272,9 +272,9 @@ class Runner(object):
         one_hour_ago = timezone.now() - timedelta(hours=1)
         recent_invoices = [i.id for i in invoice_list_from_db.values() if i.modified > one_hour_ago]
         if len(recent_invoices) == 0:
-            logger.info("invoice_list_from_db is empty")
+            logger.debug("invoice_list_from_db is empty")
         else:
-            logger.info("Recent invoice_list_from_db was: {}".format(recent_invoices))
+            logger.debug("Recent invoice_list_from_db was: {}".format(recent_invoices))
 
 
         for raw_invoice in invoice_list_from_node:
@@ -295,7 +295,7 @@ class Runner(object):
             # }
             created = general_util.unixtime_to_datetime(int(raw_invoice["creation_date"]))
             if created < general_util.now() - settings.INVOICE_RETENTION:
-                logger.info("Got old invoice from listinvoices, skipping... {} is older then retention {}".format(
+                logger.debug("Got old invoice from listinvoices, skipping... {} is older then retention {}".format(
                     created,
                     settings.INVOICE_RETENTION
                     )
@@ -307,11 +307,11 @@ class Runner(object):
             invoice = invoice_list_from_db.get(add_index_from_node)
 
             if invoice is None:
-                logger.error("Unknown add_index {}".format(add_index_from_node))
-                logger.error("Raw invoice from node was: {}".format(raw_invoice))
+                logger.debug("Unknown add_index {}".format(add_index_from_node))
+                logger.debug("Raw invoice from node was: {}".format(raw_invoice))
 
                 if raw_invoice['state'] == "CANCELED":
-                    logger.error("Skipping because invoice is cancelled...")
+                    logger.debug("Skipping add_index {} because invoice is cancelled...".format(add_index_from_node))
                     retry_mini_map[add_index_from_node] = False  # advance global checkpoint
                 else:
                     retry_mini_map[add_index_from_node] = True  # try again later
@@ -359,7 +359,7 @@ class Runner(object):
                 continue
 
             if not raw_invoice['settled']:
-                logger.info("Skipping invoice at {}: Not yet settled".format(checkpoint_helper))
+                logger.debug("Skipping invoice at {}: Not yet settled".format(checkpoint_helper))
                 retry_mini_map[checkpoint_helper.add_index] = True  # try again later
                 continue
 
@@ -581,7 +581,7 @@ class Runner(object):
 
         processing_wall_time = time.time() - start_time
 
-        logger.info("Processing node {} took {:.3f} seconds".format(node.node_name, processing_wall_time))
+        logger.debug("Processing node {} took {:.3f} seconds".format(node.node_name, processing_wall_time))
         return processing_wall_time
 
 
@@ -601,10 +601,10 @@ def run_many():
 
         # initialize checkpoints
         for node in node_list:
-            logger.info("--------------------- {} id={} ----------------------------".format(node.node_name, node.id))
+            logger.debug("--------------------- {} id={} ----------------------------".format(node.node_name, node.id))
 
             if not node.enabled:
-                logger.info("Node {} disabled, skipping...".format(node.node_name))
+                logger.debug("Node {} disabled, skipping...".format(node.node_name))
                 continue
 
             created = (node.global_checkpoint == -1)
@@ -625,7 +625,7 @@ def run_many():
             run_processing_times_array.append(t)
             total_run_processing_times_array.append(t)
 
-            logger.info(
+            logger.debug(
                 (
                     "Processed {} invoices from node and {} from db\n\n\n\n\n"
                 ).format(
@@ -636,15 +636,15 @@ def run_many():
 
             sleep(BETWEEN_NODES_DELAY)
 
-        logger.info("Pre-run Max was {:.3f} seconds".format(max(prerun_processing_times_array)))
-        logger.info("Pre-run Avg was {:.3f} seconds".format(sum(prerun_processing_times_array) / len(prerun_processing_times_array)))
-        logger.info("Pre-run Min was {:.3f} seconds".format(min(prerun_processing_times_array)))
-        logger.info("\n")
-        logger.info("Run Max was {:.3f} seconds".format(max(run_processing_times_array)))
-        logger.info("Run Avg was {:.3f} seconds".format(sum(run_processing_times_array) / len(run_processing_times_array)))
-        logger.info("Run Min was {:.3f} seconds".format(min(run_processing_times_array)))
+        logger.debug("Pre-run Max was {:.3f} seconds".format(max(prerun_processing_times_array)))
+        logger.debug("Pre-run Avg was {:.3f} seconds".format(sum(prerun_processing_times_array) / len(prerun_processing_times_array)))
+        logger.debug("Pre-run Min was {:.3f} seconds".format(min(prerun_processing_times_array)))
+        logger.debug("\n")
+        logger.debug("Run Max was {:.3f} seconds".format(max(run_processing_times_array)))
+        logger.debug("Run Avg was {:.3f} seconds".format(sum(run_processing_times_array) / len(run_processing_times_array)))
+        logger.debug("Run Min was {:.3f} seconds".format(min(run_processing_times_array)))
 
-        logger.info("\n")
+        logger.debug("\n")
 
 
     logger.info("\n")
