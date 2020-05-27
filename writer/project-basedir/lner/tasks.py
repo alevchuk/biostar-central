@@ -671,5 +671,7 @@ def run_many():
 
     logger.info("\n\n\n\n\n")
 
+print("STARTING")
+
 # schedule a new task after "repeat" number of seconds
 run_many(repeat=1)
