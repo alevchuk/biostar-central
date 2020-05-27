@@ -35,8 +35,17 @@ from lner.models import LightningNode
 from lner.models import Invoice
 from lner.models import InvoiceRequest
 
+from prometheus_client import Gauge, start_http_server
+
+
 logger.info("Python version: {}".format(sys.version.replace("\n", " ")))
 
+METRICS_PORT = 2891
+LAST_CHECK_GAUGE = Gauge(
+    'check_last_success_unixtime',
+    'Last time node was successfuly checked',
+    ["node_name"]
+)
 
 BETWEEN_NODES_DELAY = 1
 
@@ -218,6 +227,7 @@ class Runner(object):
 
     def run_one_node(self, node):
         start_time = time.time()
+        healthy = True
 
         invoices_details = lnclient.listinvoices(
             index_offset=node.global_checkpoint,
@@ -320,7 +330,8 @@ class Runner(object):
 
                 else:
                     logger.error("Unknown add_index {} something is fishy, try again later".format(add_index_from_node))
-                    retry_mini_map[add_index_from_node] = True  # something is fishy, try again later
+                    retry_mini_map[add_index_from_node] = True  # error, something is fishy, try again later
+                    healthy = False
 
                 continue
 
@@ -331,7 +342,9 @@ class Runner(object):
                     raw_invoice["memo"]
                 ))
 
-                retry_mini_map[add_index_from_node] = True  # try again later
+                retry_mini_map[add_index_from_node] = True  # error, try again later
+                healthy = False
+
                 continue
 
             if invoice.pay_req != raw_invoice["payment_request"]:
@@ -340,7 +353,9 @@ class Runner(object):
                     raw_invoice["payment_request"]
                 ))
 
-                retry_mini_map[add_index_from_node] = True  # try again later
+                retry_mini_map[add_index_from_node] = True  # error, try again later
+                healthy = False
+
                 continue
 
             checkpoint_helper = CheckpointHelper(
@@ -572,6 +587,7 @@ class Runner(object):
 
         # advance global checkpoint
         new_global_checkpoint = None
+
         for add_index in sorted(retry_mini_map.keys()):
             retry = retry_mini_map[add_index]
             if retry:
@@ -586,6 +602,9 @@ class Runner(object):
             logger.info("Saved new global checkpoint {}".format(new_global_checkpoint))
 
         processing_wall_time = time.time() - start_time
+
+        if healthy:
+            LAST_CHECK_GAUGE.labels(node.node_name).set_to_current_time()
 
         logger.debug("Processing node {} took {:.3f} seconds".format(node.node_name, processing_wall_time))
         return processing_wall_time
@@ -671,7 +690,11 @@ def run_many():
 
     logger.info("\n\n\n\n\n")
 
-print("STARTING")
+
+logger.info("Starting metrics on port {} ...".format(METRICS_PORT))
+
+start_http_server(METRICS_PORT)
+logger.info("Metrics server started")
 
 # schedule a new task after "repeat" number of seconds
 run_many(repeat=1)
