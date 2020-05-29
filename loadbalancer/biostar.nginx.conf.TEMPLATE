@@ -25,8 +25,8 @@ server {
     # Path for static files.
     root %LIVE_DIR%/;
 
-    access_log %LIVE_DIR%/logs/nginx-access.log;
-    error_log %LIVE_DIR%/logs/nginx-error.log;
+    access_log %LOG_DIR%/nginx-access.log;
+    error_log %LOG_DIR%/nginx-error.log;
 
     location = /favicon.ico {
         alias    %LIVE_DIR%/static/favicon.ico;
