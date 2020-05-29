@@ -23,40 +23,40 @@ server {
     keepalive_timeout 25s;
 
     # Path for static files.
-    root %LIVE_DIR%/export/;
+    root %LIVE_DIR%/;
 
     access_log %LIVE_DIR%/logs/nginx-access.log;
     error_log %LIVE_DIR%/logs/nginx-error.log;
 
     location = /favicon.ico {
-        alias    %LIVE_DIR%/export/static/favicon.ico;
+        alias    %LIVE_DIR%/static/favicon.ico;
     }
     location = /apple-touch-icon.png {
-        alias    %LIVE_DIR%/export/static/apple-touch-icon.png;
+        alias    %LIVE_DIR%/static/apple-touch-icon.png;
     }
 
     location = /favicon-32x32.png {
-        alias    %LIVE_DIR%/export/static/favicon-32x32.png;
+        alias    %LIVE_DIR%/static/favicon-32x32.png;
     }
 
     location = /favicon-16x16.png {
-        alias    %LIVE_DIR%/export/static/favicon-16x16.png;
+        alias    %LIVE_DIR%/static/favicon-16x16.png;
     }
 
     location = /site.webmanifest {
-        alias    %LIVE_DIR%/export/static/site.webmanifest;
+        alias    %LIVE_DIR%/static/site.webmanifest;
     }
 
     location = /safari-pinned-tab.svg {
-        alias    %LIVE_DIR%/export/static/safari-pinned-tab.svg;
+        alias    %LIVE_DIR%/static/safari-pinned-tab.svg;
     }
 
     location = /sitemap.xml {
-        alias    %LIVE_DIR%/export/static/sitemap.xml;
+        alias    %LIVE_DIR%/static/sitemap.xml;
     }
 
     location = /robots.txt {
-        alias    %LIVE_DIR%/export/static/robots.txt;
+        alias    %LIVE_DIR%/static/robots.txt;
     }
 
     location /static/ {
@@ -95,7 +95,7 @@ server {
     location = /error.html {
       ssi on;
       internal;
-      root %LIVE_DIR%/export/;
+      root %LIVE_DIR%/static/;
     }
 }
 
