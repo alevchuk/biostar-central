@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='invoice',
             name='lightning_node',
-            field=models.ForeignKey(default=lner.models.get_first_node, on_delete=django.db.models.deletion.CASCADE, to='lner.LightningNode'),
+            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='lner.LightningNode'),
         ),
     ]
