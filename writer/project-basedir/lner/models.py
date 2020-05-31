@@ -38,15 +38,6 @@ class LightningNode(CustomModel):
     connect_ip = models.CharField(verbose_name='Public IP:port of the target node', max_length=255, default="1.2.3.4:9735")
     connect_tor = models.CharField(verbose_name='Public onion:port of the target node', max_length=255, default="abczyx123.onion:9735")
 
-
-def get_first_node():
-    if len(LightningNode.objects.all()) == 0:
-        n = LightningNode(rpcserver="bl3:10009", node_name="bl3")
-        n.save()
-
-    return LightningNode.objects.get(id=1).id
-
-
 class InvoiceRequest(CustomModel):
     lightning_node = models.ForeignKey(LightningNode, on_delete=models.CASCADE)
     memo = models.CharField(
@@ -55,7 +46,7 @@ class InvoiceRequest(CustomModel):
     )
 
 class Invoice(CustomModel):
-    lightning_node = models.ForeignKey(LightningNode, on_delete=models.CASCADE, default=get_first_node)
+    lightning_node = models.ForeignKey(LightningNode, on_delete=models.CASCADE, default=None)
     invoice_request = models.ForeignKey(InvoiceRequest, null=True, default=None, on_delete=models.CASCADE)
     r_hash = models.CharField(verbose_name='LN Invoice r_hash', max_length=255, default="__DEFAULT__")
     pay_req = models.CharField(verbose_name='LN Invoice pay_req', max_length=settings.MAX_PAYREQ_SIZE)
