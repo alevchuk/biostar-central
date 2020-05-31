@@ -17,8 +17,10 @@ if [ $# == 0 ]; then
     echo '  uninstall           - [depricated] uninstall all dependencies in the virtual environments'
     echo '  reader-dev          - invoke manage.py for reader with dev settings'
     echo '  reader-prod         - invoke manage.py for reader with prod settings'
+    echo '  reader-beta         - invoke manage.py for reader with beta settings'
     echo '  writer-dev          - invoke manage.py for writer with dev settings'
     echo '  writer-prod         - invoke manage.py for writer with prod settings'
+    echo '  writer-beta         - invoke manage.py for writer with beta settings'
     echo ''
     echo '  init-dev            - initializes a local database for testing'
     echo '  init-reader-prod    - initializes static files'
@@ -160,6 +162,19 @@ if [ "$1" = "reader-prod" ]; then
 	exit
 fi
 
+if [ "$1" = "reader-beta" ]; then
+	set -ue  # stop on errors or missing environment variables.
+	shift
+	(
+		cd reader-env
+		. bin/activate
+		cd ../reader/project-basedir
+		. ./conf/beta.env
+		cd live
+		../manage.py $@
+	)
+	exit
+fi
 
 if [ "$1" = "reader-dev" ]; then
 	set -ue  # stop on errors or missing environment variables.
@@ -196,6 +211,18 @@ if [ "$1" = "writer-prod" ]; then
 		. bin/activate
 		cd ../writer/project-basedir
 		DJANGO_SETTINGS_MODULE=biostar_writer.settings.prod ./manage.py $@
+	)
+	exit
+fi
+
+if [ "$1" = "writer-beta" ]; then
+	set -ue  # stop on errors or missing environment variables.
+	shift
+	(
+		cd writer-env
+		. bin/activate
+		cd ../writer/project-basedir
+		DJANGO_SETTINGS_MODULE=biostar_writer.settings.beta ./manage.py $@
 	)
 	exit
 fi
