@@ -1,5 +1,12 @@
 import logging
 
+try:
+    from pathlib import Path
+    HOME = str(Path.home())
+except Exception:
+    from os.path import expanduser
+    HOME = expanduser("~")
+
 def getLogger(name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
@@ -13,7 +20,7 @@ def getLogger(name):
     logger.addHandler(ch)
 
     # Log to file (all)
-    fh = logging.FileHandler("../../log/{}.log".format(name))
+    fh = logging.FileHandler("{}/log/{}.log".format(HOME, name))
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
