@@ -10,7 +10,6 @@ from biostar.apps.posts.models import Post, Vote
 from biostar.apps.messages.models import Message
 
 from collections import defaultdict
-from biostar.awards import create_user_award
 
 from common.log import logger
 

@@ -1,10 +1,6 @@
 from django.conf.urls import include, url
 from django.conf import settings
 
-# Uncomment the next two lines to enable the admin:
-from django.contrib import admin
-admin.autodiscover()
-
 from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate, api
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, PostPreviewView, VotePublishView, PostPublishView, AcceptPreviewView
