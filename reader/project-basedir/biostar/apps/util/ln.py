@@ -27,9 +27,9 @@ def call_endpoint(path, args={}, as_post=False):
     full_path = 'http://{}:8000/{}.json'.format(settings.WRITER_HOST, path)
     try:
         if as_post:
-            return requests.post(full_path, headers=headers, data=args)
+            return requests.post(full_path, headers=headers, data=args, timeout=settings.API_TIMEOUT)
         else:
-            return requests.get(full_path, headers=headers, params=args)
+            return requests.get(full_path, headers=headers, params=args, timeout=settings.API_TIMEOUT)
 
     except requests.exceptions.ConnectionError as e:
         logger.exception(e)

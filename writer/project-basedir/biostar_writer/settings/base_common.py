@@ -6,6 +6,8 @@ from datetime import timedelta
 
 PAYMENT_AMOUNT = 2  # in sats
 
+API_TIMEOUT = 5  # seconds
+
 MAX_MEMO_SIZE = 600  # includes the length of the friendly prefix
 MAX_TITLE = 100
 MAX_CONTENT = MAX_MEMO_SIZE - MAX_TITLE  # minus title, tags, etc...
