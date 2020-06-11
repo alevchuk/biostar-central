@@ -21,7 +21,7 @@
     &bull;
     <span class="muted">
          written <span itemprop="dateCreated" content="{{ post.creation_date|date:'c' }}">
-        {{ post.creation_date|time_ago }}</span>
+        {{ post.creation_date|time_ago }}</span> by {% userlink post.author %}
     </span>
 </div>
 
