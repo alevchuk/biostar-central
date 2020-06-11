@@ -7,7 +7,7 @@
 {% load humanize %}
 
 {% block page_title %}
-    Publish Post
+    Publish action
 {% endblock %}
 
 {% block extras %}
@@ -52,8 +52,8 @@
 
     <div><img src="/payment_check/{{ node_id }}/{{ memo }}/payment_check.svg" /></div>
 
-    <h2>Pay to vote</h2>
-    <p>The vote will be published after a payment is made on the Lightning Network using the invoice.
+    <h2>Pay to publish action</h2>
+    <p>The action will be published after a payment is made on the Lightning Network using the invoice.
     Payment of <b>{{ payment_amount|intcomma }} sats</b> is required.</p>
     <p>Your invoice is:</p>
     <pre>{{ pay_req }}</pre>

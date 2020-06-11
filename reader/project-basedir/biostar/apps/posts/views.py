@@ -956,7 +956,7 @@ class VotePublishView(TemplateView):
     """
     """
 
-    template_name = "vote_publish.html"
+    template_name = "action_publish.html"
     form_class = SignMessageForm
 
     def get_context_data(self, **kwargs):
