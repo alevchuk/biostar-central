@@ -30,3 +30,5 @@ REST_FRAMEWORK = {
 
 # ln-central specific config
 MOCK_LN_CLIENT = True
+
+AWARD_TIMEDELTA = timedelta(minutes=1)
