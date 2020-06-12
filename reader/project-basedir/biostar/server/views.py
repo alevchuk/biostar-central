@@ -382,7 +382,7 @@ class PostDetails(DetailView):
         context['form'] = ShortForm()
         context['maxlength'] = settings.MAX_CONTENT
 
-        # TODO: put into a shard function get_bounty_sats
+        # TODO: put into a shard function to get_bounty_sats / award_pid / take_custody_url / ..
         bounty_sats = 0
         awards = []
         bounties = Bounty.objects.filter(post_id=context["post"], is_active=True, is_payed=False).order_by("created")
@@ -395,6 +395,8 @@ class PostDetails(DetailView):
             bounty_sats = None
 
         context['bounty_sats'] = bounty_sats
+        context['award_pid'] = None
+        context['award_recieved_sats'] = None
 
         if len(awards) > 0:
             if len(awards) > 1:

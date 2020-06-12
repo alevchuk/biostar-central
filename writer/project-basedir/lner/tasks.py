@@ -237,7 +237,9 @@ class Runner(object):
 
         if node not in self.all_invoices_from_db:
             invoice_list_from_db = {}
-            logger.debug("DB has no invoices for this node")
+            logger.warning("DB has no invoice entry for this node")
+            if len(self.all_invoices_from_db[node]) == 0:
+                logger.debug("DB has no invoices for this node")
         else:
             invoice_list_from_db = self.all_invoices_from_db[node]
 
@@ -313,7 +315,6 @@ class Runner(object):
                 continue
 
             add_index_from_node = int(raw_invoice["add_index"])
-
             invoice = invoice_list_from_db.get(add_index_from_node)
 
             if invoice is None:

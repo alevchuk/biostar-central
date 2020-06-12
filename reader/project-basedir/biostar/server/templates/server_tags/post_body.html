@@ -7,6 +7,17 @@
     {% if post.is_toplevel %}
         {% include "banners/leaderboard.html" %}
 
+        {% if bounty_sats > 0 %}
+            {% if award_pid %}
+                {% if award_recieved_sats %}
+                    Bounty won by: <a href="{% url 'post-details' award_pid %}">ln.support/{{ award_pid }}</a>. Author, please take custody of your sats...
+                {% else %}
+                    Bounty will be awarded to <a href="{% url 'post-details' award_pid %}">ln.support/{{ award_pid }}</a> unless there is a better answer...
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+
         {% bounty_title post bounty_sats %}
 
     {% endif %}
