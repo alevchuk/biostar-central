@@ -122,11 +122,11 @@ class CreateInvoiceViewSet(viewsets.ModelViewSet):
 
                 if command_results["success"]:
                     # Raise node score
-                    till_0 = -node.qos_score
-                    if till_0 < 0:
-                        till_0 = 0
+                    if node.qos_score > 0:
+                        node.qos_score = 0
 
-                    node.qos_score = -(till_0 / 2)  # qos_score is always negative; till_0 is always positive
+                    # precondition: qos_score is always non-positive
+                    node.qos_score = node.qos_score / 2
                     node.save()
 
                     logger.info("Successful addinvoice on the node")
@@ -147,7 +147,8 @@ class CreateInvoiceViewSet(viewsets.ModelViewSet):
                     if till_negative_100 < 0:
                         till_negative_100 = 0
 
-                    node.qos_score = -(till_negative_100 / 2)  # qos_score is always negative; till_negative_100 is always positive
+                    # precondition: qos_score is always non-positive; till_negative_100 is always non-negative
+                    node.qos_score = node.qos_score - (till_negative_100 / 2)
                     node.save()
 
                     # 2. show error to the user
