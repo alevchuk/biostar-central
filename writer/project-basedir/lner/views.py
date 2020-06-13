@@ -111,15 +111,57 @@ class CreateInvoiceViewSet(viewsets.ModelViewSet):
 
             else:
                 # TODO: surface addinvoice timeout and other exceptions back to the user
-                # Bonties can specify amount in the memo, everithing else defaults to settings.PAYMENT_AMOUNT
+                # Bounties can specify amount in the memo, everything else defaults to settings.PAYMENT_AMOUNT
                 deserialized_memo = json_util.deserialize_memo(memo)
-                invoice_stdout = lnclient.addinvoice(
+                command_results = lnclient.addinvoice(
                     memo,
                     node.rpcserver,
                     amt=deserialized_memo.get("amt", settings.PAYMENT_AMOUNT),
                     expiry=settings.INVOICE_EXPIRY,
                 )
-                logger.info("Finished addinvoice on the node")
+
+                if command_results["success"]:
+                    # Raise node score
+                    till_0 = -node.qos_score
+                    if till_0 < 0:
+                        till_0 = 0
+
+                    node.qos_score = -(till_0 / 2)  # qos_score is always negative; till_0 is always positive
+                    node.save()
+
+                    logger.info("Successful addinvoice on the node")
+
+                    try:
+                        invoice_stdout = json.loads(command_results["stdouterr"])
+                    except Exception as e:
+                        msg = "Successful addinvoice yet failed to parse json output"
+                        logger.exception(e)
+                        logger.error(msg)
+
+                        raise CreateInvoiceError(msg)
+                else:
+                    logger.info("Failed when trying to run addinvoice on the node")
+
+                    # 1. lower node score
+                    till_negative_100 = (node.qos_score + 100)
+                    if till_negative_100 < 0:
+                        till_negative_100 = 0
+
+                    node.qos_score = -(till_negative_100 / 2)  # qos_score is always negative; till_negative_100 is always positive
+                    node.save()
+
+                    # 2. show error to the user
+                    log_msg = "Failed when trying to run addinvoice on the node: failure_type={} failure_msg={} stdouterr={}".format(
+                        command_results["failure_type"],
+                        command_results["failure_msg"],
+                        command_results["stdouterr"],
+                    )
+                    user_msg = "Failed when trying to run addinvoice on the node: failure_type={} failure_msg={}".format(
+                        command_results["failure_type"],
+                        command_results["failure_msg"],
+                    )
+                    logger.error(log_msg)
+                    raise CreateInvoiceError(user_msg)
 
                 invoice_stdout["node_id"] = node.id
                 if "payment_request" in invoice_stdout:

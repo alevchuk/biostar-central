@@ -32,8 +32,7 @@ def addinvoice(memo, rpcserver, amt, expiry):
     """
     cmd = [LNCLI_BIN] + _auth_args(rpcserver) + ["addinvoice", "--memo", memo, "--amt", str(amt), "--expiry", str(expiry)]
 
-    # TODO: return_stderr_on_fail=True, and adjust all the call sites
-    output = cli.run(cmd)
+    output = cli.run(cmd, return_stderr_on_fail=True)
     print("Command finished, addinvoice json stdout: {}".format(output))
     return output
 
@@ -55,6 +54,7 @@ def listinvoices(index_offset, rpcserver, max_invoices=100, mock=False):
 
     # TODO: return_stderr_on_fail=True, and adjust all the call sites
     return cli.run(cmd, log_cmd=False)
+
 
 def verifymessage(msg, sig, rpcserver, mock=False):
     """
