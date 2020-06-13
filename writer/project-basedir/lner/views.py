@@ -152,12 +152,12 @@ class CreateInvoiceViewSet(viewsets.ModelViewSet):
                     node.save()
 
                     # 2. show error to the user
-                    log_msg = "Failed when trying to run addinvoice on the node: failure_type={} failure_msg={} stdouterr={}".format(
+                    log_msg = "Failed when trying to run addinvoice on the node: failure_type={} failure_msg='{}' stdouterr='{}'".format(
                         command_results["failure_type"],
                         command_results["failure_msg"],
                         command_results["stdouterr"],
                     )
-                    user_msg = "Failed when trying to run addinvoice on the node: failure_type={} failure_msg={}".format(
+                    user_msg = "Failed when trying to run addinvoice on the node: failure_type={} failure_msg='{}'".format(
                         command_results["failure_type"],
                         command_results["failure_msg"],
                     )
