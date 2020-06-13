@@ -55,7 +55,7 @@ def gen_invoice(publish_url, memo, node_id):
     )
 
     try:
-        details = ln.add_invoice(memo, node_id=node_id)
+        details = ln.addinvoice(memo, node_id=node_id)
     except ln.LNUtilError as e:
         logger.exception(e)
         raise

@@ -98,7 +98,7 @@ def get_nodes_list():
         return sorted(return_list, key=by_name)
 
 
-def add_invoice(memo, node_id):
+def addinvoice(memo, node_id):
     response = call_endpoint('ln/addinvoice', args={"memo": memo, "node_id": node_id}, as_post=True)
 
     check_expected_key(response, "pay_req", is_list=False)
