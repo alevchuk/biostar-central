@@ -23,6 +23,7 @@ from lner.models import PayAwardResult
 
 from bounty.models import Bounty, BountyAward
 
+from lner import lnclient
 from lner.serializers import LightningNodeSerializer
 from lner.serializers import InvoiceSerializer
 from lner.serializers import InvoiceRequestSerializer
@@ -31,7 +32,6 @@ from lner.serializers import VerifyMessageResponseSerializer
 from lner.serializers import PayAwardResponseSerializer
 
 from common import log
-from common import lnclient
 from common import validators
 from common import json_util
 

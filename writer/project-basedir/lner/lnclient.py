@@ -1,4 +1,4 @@
-from common import cli
+from lner import cli
 
 import time
 import json

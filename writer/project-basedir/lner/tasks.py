@@ -16,7 +16,6 @@ from django.db.models import F
 from rest_framework import serializers
 from background_task import background
 
-from common import lnclient
 from common.log import logger
 from common import validators
 from common import json_util
@@ -31,6 +30,7 @@ from users.models import User
 
 from bounty.models import Bounty, BountyAward
 
+from lner import lnclient
 from lner.models import LightningNode
 from lner.models import Invoice
 from lner.models import InvoiceRequest
