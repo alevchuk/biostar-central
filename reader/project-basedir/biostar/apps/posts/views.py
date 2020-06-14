@@ -287,7 +287,7 @@ class SignMessageForm(forms.Form):
             self.helper.layout = Layout(
                 Field('signature', rows="4"),
                 ButtonHolder(
-                    Submit('submit', 'Check')
+                    Submit('submit', 'Sign')
                 )
             )
 
