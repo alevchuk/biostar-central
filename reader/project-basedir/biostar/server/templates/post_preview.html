@@ -51,7 +51,11 @@
             </div>
 
             <br />
-            <a class="btn btn-primary" href="{{ publish_url|safe }}">Get Invoice</a>
+            {% if user.is_unsigned %}
+                <a class="btn btn-primary" href="{{ publish_url|safe }}">Get Anonymous Invoice</a>
+            {% else %}
+                <a class="btn btn-primary" href="{{ publish_url|safe }}">Get Signed Invoice</a>
+            {% endif %}
 
         </div>
     </div>
