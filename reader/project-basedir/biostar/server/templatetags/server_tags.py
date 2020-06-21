@@ -254,27 +254,19 @@ def post_body(
     post,
     user,
     tree,
-    bounty_sats=None,
-    candidate_award_sats=None,
-    preliminary_award_time=None,
-    award_recieved_sats=None,
-    take_custody_url=None,
-    award_pid=None,
+    awards,
+    bounty_sats,
 ):
     "Renders the post body"
     return dict(
         post=post,
         user=user,
-        bounty_sats=bounty_sats,
         tree=tree,
+        awards=awards,
+        bounty_sats=bounty_sats,
         request=context['request'],
         vote_url=post.get_vote_url(),
         accept_url=post.get_accept_url(),
-        candidate_award_sats=candidate_award_sats,
-        preliminary_award_time=preliminary_award_time,
-        award_recieved_sats=award_recieved_sats,
-        take_custody_url=take_custody_url,
-        award_pid=award_pid,
     )
 
 @register.inclusion_tag('server_tags/post_preview_body.html', takes_context=True)
@@ -347,17 +339,15 @@ def post_count_box(post, context='', topic='', bounty_sats=None):
     return dict(post=post, context=context, topic=topic, bounty_sats=bounty_sats)
 
 @register.inclusion_tag('server_tags/post_actions.html')
-def post_actions(post, user, label="COMMENT", candidate_award_sats=None, preliminary_award_time=None, award_recieved_sats=None, take_custody_url=None):
+def post_actions(post, user, awards, bounty_sats, label="COMMENT"):
     "Renders post actions"
     return dict(
         post=post,
         user=user,
         label=label,
+        awards=awards,
+        bounty_sats=bounty_sats,
         add_bounty_url=reverse("bounty-form", kwargs=dict(pid=post.id)),
-        candidate_award_sats=candidate_award_sats,
-        preliminary_award_time=preliminary_award_time,
-        award_recieved_sats=award_recieved_sats,
-        take_custody_url=take_custody_url
     )
 
 @register.inclusion_tag('server_tags/regarding_privacy.html')
@@ -388,6 +378,46 @@ def render_comments(request, post, tree):
     else:
         text = ''
     return text
+
+
+# # award grant and expansion messages
+AWARD_STATUS_TEMPLATE = "server_tags/award_status.html"
+AWARD_STATUS_BODY = template.loader.get_template(AWARD_STATUS_TEMPLATE)
+
+@register.simple_tag
+def render_award_status(post, awards, bounty_sats):
+    global AWARD_STATUS_BODY, grant
+    if settings.DEBUG:
+        AWARD_STATUS_BODY = template.loader.get_template(AWARD_STATUS_TEMPLATE)
+
+    if not awards:
+        return ''
+
+    if post.id not in awards:
+        return ''
+
+    # Select the award for this post
+    award = awards[post.id]
+
+    context = Context({
+        "bounty_sats": bounty_sats,
+        "post": post
+    })
+
+    for key in [
+        "award_anticipated",
+        "preliminary_award_time",
+        "award_granted",
+        "take_custody_url",
+        "award_expanded",
+        "award_expansion_time"
+    ]:
+        context[key] = award.get(key)
+
+    html = AWARD_STATUS_BODY.render(context)
+
+
+    return html
 
 
 def traverse_comments(request, post, tree):

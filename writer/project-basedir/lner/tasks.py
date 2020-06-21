@@ -43,7 +43,7 @@ logger.info("Python version: {}".format(sys.version.replace("\n", " ")))
 METRICS_PORT = 2891
 LAST_CHECK_GAUGE = Gauge(
     'check_last_success_unixtime',
-    'Last time node was successfuly checked',
+    'Last time node was successfully checked',
     ["node_name"]
 )
 
@@ -59,6 +59,7 @@ def sleep(seconds):
     time.sleep(seconds)
 
 
+# TODO: move to shared library
 def get_anon_user():
     user, created = User.objects.get_or_create(pubkey="Unknown")
     if created:
@@ -66,7 +67,7 @@ def get_anon_user():
 
     return user
 
-
+# TODO: move to a shared library
 def update_deadline(earliest_bounty, new_deadline):
     earliest_bounty.award_time = new_deadline
     earliest_bounty.save()
@@ -80,7 +81,10 @@ def update_deadline(earliest_bounty, new_deadline):
 
 def award_bounty(question_post):
     """
-    Award Prelimenary Bounty (actual award happens after timer runs out)
+    Award Preliminary Bounty (actual award happens after timer runs out)
+
+    TODO: instead of earliest_bounty have only 1 bounty active at any given time
+        for the feature to add to bounties, create a new bounty add model
     """
 
     # 1. find all bounties
@@ -105,8 +109,9 @@ def award_bounty(question_post):
     else:
         logger.info("This bounty has no awards yet")
 
+    # TODO: extract into a shared function
     # 4. find the top voted answer among answers after the bounty start time
-    # creation date breaks ties, olderst wins
+    # creation date breaks ties, oldest wins
     a_list = Post.objects.filter(
         parent=question_post.id,
         creation_date__gt=earliest_bounty.activation_time,
@@ -425,7 +430,7 @@ class Runner(object):
                     vote = Vote.objects.create(author=user, post=post, type=vote_type)
 
                     # Update user reputation
-                    # TODO: reactor score logic to be shared with "mark_fake_test_data.py"
+                    # TODO: refactor score logic to be shared with "mark_fake_test_data.py"
                     User.objects.filter(pk=post.author.id).update(score=F('score') + change)
 
                     # The thread score represents all votes in a thread

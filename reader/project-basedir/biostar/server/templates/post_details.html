@@ -34,21 +34,13 @@
             <div id="post-details" >
                 {# This is the toplevel post #}
                 <span itemscope itemtype="http://schema.org/Question">
-                    {% post_body post user post.tree bounty_sats "" "" award_recieved_sats take_custody_url award_pid %}
+                    {% post_body post user post.tree post.awards bounty_sats %}
                 </span>
 
                 {# Render each answer for the post #}
                 {% for answer in post.answers %}
                     <span itemscope itemtype="http://schema.org/Answer">
-                        {% if award_pid == answer.id %}
-                            {% if award_recieved_sats %}
-                                {% post_body answer user post.tree "0" "0" "0" award_recieved_sats take_custody_url %}
-                            {% else %}
-                                {% post_body answer user post.tree "0" candidate_award_sats preliminary_award_time %}
-                            {% endif %}
-                        {% else %}
-                            {% post_body answer user post.tree "0" %}
-                        {% endif %}
+                        {% post_body answer user post.tree post.awards post.bounty_sats %}
                     </span>
                 {% endfor %}
 

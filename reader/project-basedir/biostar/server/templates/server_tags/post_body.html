@@ -7,7 +7,7 @@
     {% if post.is_toplevel %}
         {% include "banners/leaderboard.html" %}
 
-        {% if bounty_sats > 0 %}
+        {% if post.bounty_sats > 0 %}
             {% if award_pid %}
                 {% if award_recieved_sats %}
                     Bounty won by: <a href="{% url 'post-details' award_pid %}">ln.support/{{ award_pid }}</a>. Author, please take custody of your sats...
@@ -18,7 +18,7 @@
         {% endif %}
 
 
-        {% bounty_title post bounty_sats %}
+        {% bounty_title post post.bounty_sats %}
 
     {% endif %}
 
@@ -69,7 +69,7 @@
                     </div>
                 {% endif %}
 
-                {% post_actions post user "COMMENT" candidate_award_sats preliminary_award_time award_recieved_sats take_custody_url %}
+                {% post_actions post user awards bounty_sats %}
 
             </div>
 

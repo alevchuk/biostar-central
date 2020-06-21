@@ -331,7 +331,55 @@ class PostDetails(DetailView):
         # This will be piggybacked on the main object.
         obj.sub = Subscription.get_sub(post=obj)
 
-        # Bail out if not at top level.
+        # Awards
+        # TODO: put into a shard function to get_bounty_sats / award_pid / take_custody_url / ..
+        bounty_sats = 0
+        awards = []
+        bounties = Bounty.objects.filter(post_id=obj, is_active=True, is_payed=False).order_by("created")
+
+        for b in bounties:
+            bounty_sats += b.amt
+            awards += BountyAward.objects.filter(bounty=b)
+
+        if bounty_sats == 0:
+            bounty_sats = None
+
+        obj.bounty_sats = bounty_sats
+
+        awards_dict = {}
+        first_active_bounty = bounties.first()
+
+        if first_active_bounty:
+            for award in awards:
+                if not first_active_bounty.award_time:
+                    msg = "award {} exists yet award_time is not set on the Bounty!".format(award.id)
+                    logger.error(msg)
+                    raise Exception(msg)
+
+                awards_dict[award.post.id] = {}
+                awards_dict[award.post.id]["take_custody_url"] = reverse(
+                    "take-custody",
+                    kwargs={"award_id": award.id}
+                )
+
+                if first_active_bounty.award_time <= timezone.now():
+                    awards_dict[award.post.id]["award_granted"] = True
+
+                    award_expansion_time = award.created + settings.CLAIM_TIMEDELTA
+                    awards_dict[award.post.id]["award_expansion_time"] = award_expansion_time
+
+                    if award_expansion_time >= timezone.now():
+                        awards_dict[award.post.id]["award_expanded"] = False
+                    else:
+                        awards_dict[award.post.id]["award_expanded"] = True
+
+                else:
+                    awards_dict[award.post.id]["award_anticipated"] = True
+                    awards_dict[award.post.id]["preliminary_award_time"] = first_active_bounty.award_time
+
+        obj.awards = awards_dict
+
+        # Stop adding info if not at top level.
         if not obj.is_toplevel:
             return obj
 
@@ -341,6 +389,7 @@ class PostDetails(DetailView):
 
         # Do a little preprocessing.
         answers = [p for p in thread if p.type == Post.ANSWER and not p.is_fake_test_data]
+
 
         tree = OrderedDict()
         for post in thread:
@@ -381,46 +430,6 @@ class PostDetails(DetailView):
         context['request'] = self.request
         context['form'] = ShortForm()
         context['maxlength'] = settings.MAX_CONTENT
-
-        # TODO: put into a shard function to get_bounty_sats / award_pid / take_custody_url / ..
-        bounty_sats = 0
-        awards = []
-        bounties = Bounty.objects.filter(post_id=context["post"], is_active=True, is_payed=False).order_by("created")
-        for b in bounties:
-            bounty_sats += b.amt
-
-            awards += BountyAward.objects.filter(bounty=b)
-
-        if bounty_sats == 0:
-            bounty_sats = None
-
-        context['bounty_sats'] = bounty_sats
-        context['award_pid'] = None
-        context['award_recieved_sats'] = None
-
-        if len(awards) > 0:
-            if len(awards) > 1:
-                msg = "More than 1 award found {}".format(awards)
-                logger.error(msg)
-                raise Exception(msg)
-
-            award = awards[0]
-
-            first_active_bounty = bounties.first()
-            if not first_active_bounty.award_time:
-                msg = "award {} exists yet award_time is not set on the Bounty!".format(award.id)
-                logger.error(msg)
-                raise Exception(msg)
-
-            else:
-                context['award_pid'] = award.post.id
-                context['take_custody_url'] = reverse("take-custody", kwargs={"award_id": award.id})
-
-                if first_active_bounty.award_time <= timezone.now():
-                    context['award_recieved_sats'] = bounty_sats
-                else:
-                    context['candidate_award_sats'] = bounty_sats
-                    context['preliminary_award_time'] = first_active_bounty.award_time
 
         return context
 
