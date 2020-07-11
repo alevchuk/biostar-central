@@ -21,11 +21,9 @@ The software is open source and free to use under the MIT License.
 
 ### Features
 
-* Q&A: questions, answers, comments, user moderation, voting, reputation, badges, threaded discussions
-* RSS Planet: feed aggregation from different sources
-* External authentication: authenticate users with a different web service
-* Email integration: import previous posts from mailing lists 
-* Low resource utilization and easy deployment. 
+* Q&A: questions, answers, comments,voting, reputation, badges, threaded discussions, bounties
+* Lightning Network integration
+* Low resource utilization and easy deployment
 
 ### Documentation
 
