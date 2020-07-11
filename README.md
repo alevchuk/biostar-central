@@ -27,8 +27,6 @@ The software is open source and free to use under the MIT License.
 * Email integration: import previous posts from mailing lists 
 * Low resource utilization and easy deployment. 
 
-Requirements: `Python 2.7`
-
 ### Documentation
 
 The documentation:
