@@ -13,6 +13,7 @@ The site has been developed by **scientists and for scientists**. It aims
 to address the requirements and needs that scientific communities have.
 Biostar is used to run several science oriented Q&A sites:
 
+ * Lightning Network Q&A at: https://ln.support
  * Biostars Bioinformatics Q&A at: https://www.biostars.org
  * Bioconductor User Support: https://support.bioconductor.org/
 
