@@ -15,7 +15,7 @@ Biostar is used to run several science oriented Q&A sites:
 
  * Lightning Network Q&A at: https://ln.support
  * Biostars Bioinformatics Q&A at: https://www.biostars.org
- * Bioconductor User Support: https://support.bioconductor.org/
+ * Bioconductor User Support: https://support.bioconductor.org
 
 The software is open source and free to use under the MIT License.
 
