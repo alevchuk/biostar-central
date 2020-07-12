@@ -17,8 +17,7 @@
 
 
     {% if award_expanded %}
-        <div class="post-action" style="width: 70%">Since 7 days has passed without sats being taken,
-        since {{award_expansion_time|naturaltime}} the award is also available for the next best answer.</div>
+        <div class="post-action" style="width: 70%">Since {{award_expansion_time|naturaltime}} the award is also available for the next best answer because {{claim_delta_days}} days has passed without sats being taken.</div>
     {% else %}
         <div class="post-action" style="width: 70%">If sats are not taken in 7 days ({{award_expansion_time|naturaltime}}) this award will become available to the next best answer.</div>
     {% endif %}

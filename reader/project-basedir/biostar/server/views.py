@@ -38,6 +38,21 @@ from common import const
 from common import validators
 from common.log import logger
 
+from collections import namedtuple
+
+
+AwardView = namedtuple('AwardView',
+    [
+        'take_custody_url',
+        'award_granted',
+        'award_expansion_time',
+        'award_expanded',
+        'award_anticipated',
+        'preliminary_award_time',
+        'claim_delta_days'
+    ]
+)
+
 
 def abspath(*args):
     """Generates absolute paths"""
@@ -349,6 +364,10 @@ class PostDetails(DetailView):
         awards_dict = {}
         first_active_bounty = bounties.first()
 
+        claim_delta_days = int(
+            settings.CLAIM_TIMEDELTA.total_seconds() / 60.0 / 60.0 / 24.0,
+        )
+
         if first_active_bounty:
             for award in awards:
                 if not first_active_bounty.award_time:
@@ -356,26 +375,37 @@ class PostDetails(DetailView):
                     logger.error(msg)
                     raise Exception(msg)
 
-                awards_dict[award.post.id] = {}
-                awards_dict[award.post.id]["take_custody_url"] = reverse(
-                    "take-custody",
-                    kwargs={"award_id": award.id}
-                )
+                this_award_granted = None
+                this_award_expansion_time = None
+                this_award_expanded = None
+                this_award_anticipated = None
+                this_preliminary_award_time = None
+                this_take_custody_url = reverse("take-custody", kwargs={"award_id": award.id})
 
                 if first_active_bounty.award_time <= timezone.now():
-                    awards_dict[award.post.id]["award_granted"] = True
+                    this_award_granted = True
 
                     award_expansion_time = award.created + settings.CLAIM_TIMEDELTA
-                    awards_dict[award.post.id]["award_expansion_time"] = award_expansion_time
+                    this_award_expansion_time = award_expansion_time
 
                     if award_expansion_time >= timezone.now():
-                        awards_dict[award.post.id]["award_expanded"] = False
+                        this_award_expanded = False
                     else:
-                        awards_dict[award.post.id]["award_expanded"] = True
+                        this_award_expanded = True
 
                 else:
-                    awards_dict[award.post.id]["award_anticipated"] = True
-                    awards_dict[award.post.id]["preliminary_award_time"] = first_active_bounty.award_time
+                    this_award_anticipated = True
+                    this_preliminary_award_time = first_active_bounty.award_time
+
+                awards_dict[award.post.id] = AwardView(
+                    take_custody_url=this_take_custody_url,
+                    award_granted=this_award_granted,
+                    award_expansion_time=this_award_expansion_time,
+                    award_expanded=this_award_expanded,
+                    award_anticipated=this_award_anticipated,
+                    preliminary_award_time=this_preliminary_award_time,
+                    claim_delta_days=claim_delta_days
+                )
 
         obj.awards = awards_dict
 

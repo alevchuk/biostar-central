@@ -396,23 +396,16 @@ def render_award_status(post, awards, bounty_sats):
     if post.id not in awards:
         return ''
 
-    # Select the award for this post
-    award = awards[post.id]
-
     context = Context({
         "bounty_sats": bounty_sats,
         "post": post
     })
 
-    for key in [
-        "award_anticipated",
-        "preliminary_award_time",
-        "award_granted",
-        "take_custody_url",
-        "award_expanded",
-        "award_expansion_time"
-    ]:
-        context[key] = award.get(key)
+    # Select the award for this post
+    award = awards[post.id]
+
+    for key, value in award._asdict().iteritems():
+        context[key] = value
 
     html = AWARD_STATUS_BODY.render(context)
 

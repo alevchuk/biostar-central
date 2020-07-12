@@ -31,7 +31,7 @@ SLEEP_BETWEEN_CHECKS = 600  # 10 minutes
 METRICS_PORT = 2892
 LAST_CHECK_GAUGE = Gauge(
     'check_last_success_unixtime',
-    'Last time node was successfuly checked',
+    'Last time node was successfully checked',
     ["node_name"]
 )
 
