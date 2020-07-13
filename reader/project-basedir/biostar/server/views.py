@@ -347,7 +347,6 @@ class PostDetails(DetailView):
         obj.sub = Subscription.get_sub(post=obj)
 
         # Awards
-        # TODO: put into a shard function to get_bounty_sats / award_pid / take_custody_url / ..
         bounty_sats = 0
         awards = []
         bounties = Bounty.objects.filter(post_id=obj, is_active=True, is_payed=False).order_by("created")
