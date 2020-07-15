@@ -9,7 +9,7 @@ from common import json_util
 from common.log import logger
 
 
-def gen_invoice(publish_url, memo, node_id):
+def gen_invoice(memo, node_id=None):
     context = {}
 
     nodes_list = ln.get_nodes_list()
@@ -41,7 +41,7 @@ def gen_invoice(publish_url, memo, node_id):
 
     next_node_id = nodes_list[(list_pos + 1) % len(nodes_list)]["id"]
     context["next_node_url"] = reverse(
-        publish_url,
+        "vote-publish-node-selected",
         kwargs=dict(
             memo=memo,
             node_id=next_node_id
@@ -60,14 +60,29 @@ def gen_invoice(publish_url, memo, node_id):
         logger.exception(e)
         raise
 
-
     context['pay_req'] = details['pay_req']
-
     deserialized_memo = json_util.deserialize_memo(memo)
-    context['payment_amount'] = deserialized_memo.get("amt", settings.PAYMENT_AMOUNT)
+
+    amt = deserialized_memo.get("amt")
+    assert amt is not None, "bug"
+    context['payment_amount'] = amt
 
     return context
 
+def gen_invoice_and_update_context(context):
+    try:
+        invoice_details = gen_invoice(
+            memo=context["memo"],
+            node_id=context.get("node_id"),
+        )
+    except ln.LNUtilError as msg:
+        logger.exception(msg)
+        return {}
+
+    for i in ["pay_req", "payment_amount", "open_channel_url", "next_node_url", "node_name", "node_id"]:
+        context[i] = invoice_details[i]
+
+    return context
 
 def check_invoice(memo, node_id):
     if not memo:

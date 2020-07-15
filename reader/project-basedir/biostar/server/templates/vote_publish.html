@@ -52,10 +52,11 @@
 
     <div><img src="/payment_check/{{ node_id }}/{{ memo }}/payment_check.svg" /></div>
 
-    <h2>Pay to publish action</h2>
-    <p>The action will be published after a payment is made on the Lightning Network using the invoice.
-    Payment of <b>{{ payment_amount|intcomma }} sats</b> is required.</p>
-    <p>Your invoice is:</p>
+    <h2>Pay to publish</h2>
+    <p>The vote will be published after a payment is made on the Lightning Network.
+    <b>1 sat equals 1 upvote</b>.
+    <a href="{{ customize_vote_url }}">Increase the number of upvotes...</a></p>
+    <p>Your invoice for <b>{{ payment_amount|intcomma }} sats</b> is:</p>
     <pre>{{ pay_req }}</pre>
     <img src="/qr/{{ pay_req }}/qr.svg" />
 

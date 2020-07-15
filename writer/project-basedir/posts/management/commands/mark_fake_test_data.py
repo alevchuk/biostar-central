@@ -178,7 +178,7 @@ def mark_fake_test_data(fix_only, mark_as_real, limit):
 
     # Update scores
     # TODO: implement inverse when mark_as_real=True
-    # TODO: reactor to share logic with process_tasks
+    # TODO: refactor to share logic with process_tasks
     # Now that the votes changed, we need to update User and Thread scores
 
     logger.warning("Setting all user's reputations to 0")
@@ -187,7 +187,8 @@ def mark_fake_test_data(fix_only, mark_as_real, limit):
     logger.warning("Setting all post's thread_score to 0")
     Post.objects.all().update(thread_score=0)
 
-    change = settings.PAYMENT_AMOUNT
+    change = settings.POST_PAYMENT_AMOUNT  # TODO: BUG?: This may not always be true. Votes have custom amounts.
+
     for v in Vote.objects.exclude(is_fake_test_data=True):
         if v.type in [Vote.UP, Vote.ACCEPT]:
             logger.info("Counting vote {}: author={}, post={}, type={}".format(v.id, v.author.id, v.post.id, v.human_vote_type()))

@@ -922,19 +922,7 @@ class PostPublishView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(PostPublishView, self).get_context_data(**kwargs)
-
-        try:
-            invoice_details = view_helpers.gen_invoice(
-                publish_url="post-publish-node-selected",
-                memo=context["memo"],
-                node_id=context.get("node_id"),
-            )
-        except ln.LNUtilError as msg:
-            logger.exception(msg)
-            return {}
-
-        for i in ["pay_req", "payment_amount", "open_channel_url", "next_node_url", "node_name", "node_id"]:
-            context[i] = invoice_details[i]
+        context = view_helpers.gen_invoice_and_update_context(context)
 
         return context
 
@@ -952,6 +940,92 @@ class PostPublishView(TemplateView):
         return super(PostPublishView, self).get(request, *args, **kwargs)
 
 
+class VoteCustomizeForm(forms.Form):
+    FIELDS = ["amt"]
+
+    amt = forms.CharField(
+        widget=forms.NumberInput,
+        label="Vote Amount (in sats)",
+        required=True,
+        error_messages={
+            'required': "Vote amount is required"
+        },
+        max_length=20, min_length=1,
+        validators=[],
+        help_text="Amount of sats to Vote",
+    )
+
+    def __init__(self, *args, **kwargs):
+        memo = kwargs.pop("memo")
+
+        super(VoteCustomizeForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                '1 Upvote for 1 sat',
+                'amt'
+            ),
+            ButtonHolder(
+                Submit('submit', 'Preview')
+            )
+        )
+
+        self.helper.form_action = reverse(
+                "vote-customize",
+                kwargs=dict(memo=memo)
+            )
+
+
+class VoteCustomizeView(TemplateView):
+    """
+    """
+
+    template_name = "vote_customize.html"
+    form_class = VoteCustomizeForm
+
+    def get_context_data(self, **kwargs):
+        return super(VoteCustomizeView, self).get_context_data(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        amt = request.POST.get("amt")
+        assert amt is not None, "bug"
+
+        memo = kwargs.get("memo")
+        assert memo is not None, "bug"
+
+
+        # change the memo to have new amt
+        memo_deserialized = validators.validate_memo(
+            json_util.deserialize_memo(memo)
+        )
+
+        memo_deserialized["amt"] = amt
+        memo = json_util.serialize_memo(memo_deserialized)
+
+        return HttpResponseRedirect(
+            reverse(
+                "vote-publish",
+                kwargs=dict(memo=memo)
+            )
+        )
+
+    def get(self, request, *args, **kwargs):
+        memo = kwargs.get("memo")
+        assert memo is not None, "bug"
+
+        form = self.form_class(initial={"amt": 1}, memo=memo)
+
+        try:
+            context = self.get_context_data(**kwargs)
+        except Exception as e:
+            logger.exception(e)
+            raise
+
+        context['form'] = form
+
+        return render(request, self.template_name, context)
+
+
 class VotePublishView(TemplateView):
     """
     """
@@ -961,22 +1035,15 @@ class VotePublishView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(VotePublishView, self).get_context_data(**kwargs)
+        context = view_helpers.gen_invoice_and_update_context(context)
 
-        try:
-            invoice_details = view_helpers.gen_invoice(
-                publish_url="vote-publish-node-selected",
-                memo=context["memo"],
-                node_id=context.get("node_id"),
+        if "memo" in context:
+            context["customize_vote_url"] = reverse(
+                "vote-customize",
+                kwargs=dict(memo=context["memo"])
             )
-        except ln.LNUtilError as msg:
-            logger.exception(msg)
-            return {}
-
-        for i in ["pay_req", "payment_amount", "open_channel_url", "next_node_url", "node_name", "node_id"]:
-            context[i] = invoice_details[i]
 
         return context
-
 
     def post(self, request, *args, **kwargs):
         """
@@ -999,6 +1066,7 @@ class VotePublishView(TemplateView):
         memo = validators.validate_memo(
             json_util.deserialize_memo(memo_serialized)
         )
+
 
         form = self.form_class(request.POST, memo=memo_serialized)
 

@@ -135,7 +135,6 @@ class BountyPublishView(TemplateView):
         context = super(BountyPublishView, self).get_context_data(**kwargs)
 
         inovice_details = view_helpers.gen_invoice(
-            publish_url="bounty-publish-node-selected",
             memo=context["memo"],
             node_id=context.get("node_id"),
         )

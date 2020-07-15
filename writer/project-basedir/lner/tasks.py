@@ -266,23 +266,29 @@ class Runner(object):
                 if invoice_request.lightning_node.id != node.id:
                     continue
 
-                mock_setteled = (invoice_obj.created + timedelta(seconds=3) < timezone.now())
+                mock_settled = (invoice_obj.created + timedelta(seconds=3) < timezone.now())
                 creation_unixtime = int(time.mktime(invoice_obj.created.timetuple()))
 
-                invoice_list_from_node.append(
-                    {
-                        "settled": mock_setteled,
-                        "settle_date": str(int(time.time())) if mock_setteled else 0,
-                        "state": "SETTLED" if mock_setteled else "OPEN",
-                        "memo": invoice_request.memo,
-                        "add_index": invoice_obj.add_index,
-                        "payment_request": invoice_obj.pay_req,
-                        "pay_req": invoice_obj.pay_req,  # Old format
-                        "r_hash": invoice_obj.r_hash,
-                        "creation_date": str(creation_unixtime),
-                        "expiry": str(creation_unixtime + 120)
-                    }
-                )
+                action_details = json_util.deserialize_memo(invoice_request.memo)
+
+                if "amt" not in action_details:
+                    logger.error('NOT MOCKING because invoice_request does not have "amt": {}'.format(action_details))
+                else:
+                    invoice_list_from_node.append(
+                        {
+                            "settled": mock_settled,
+                            "settle_date": str(int(time.time())) if mock_settled else 0,
+                            "state": "SETTLED" if mock_settled else "OPEN",
+                            "memo": invoice_request.memo,
+                            "add_index": invoice_obj.add_index,
+                            "payment_request": invoice_obj.pay_req,
+                            "pay_req": invoice_obj.pay_req,  # Old format
+                            "r_hash": invoice_obj.r_hash,
+                            "creation_date": str(creation_unixtime),
+                            "expiry": str(creation_unixtime + 120),
+                            "amt_paid": action_details["amt"],
+                        }
+                    )
 
         retry_mini_map = {int(invoice['add_index']): False for invoice in invoice_list_from_node}
 
@@ -403,6 +409,36 @@ class Runner(object):
                 checkpoint_helper.set_checkpoint("deserialize_failure")
                 continue
 
+            if "amt" not in action_details:
+                logger.error(
+                    'SKIPPING PAYED INVOICE. "amt" is not specified in memo {}'.format(
+                        action_details
+                    )
+                )
+                checkpoint_helper.set_checkpoint("memo_invalid")
+                continue
+
+            try:
+                int(action_details["amt"])
+            except Exception:
+                logger.error(
+                    'SKIPPING PAYED INVOICE. "amt" is not an integer in memo {}'.format(
+                        action_details
+                    )
+                )
+                checkpoint_helper.set_checkpoint("memo_invalid")
+                continue
+            else:
+                if int(action_details["amt"]) != int(raw_invoice["amt_paid"]):
+                    logger.error(
+                        'SKIPPING PAYED INVOICE. "amt" does not matched what is payed ("amt" was {}, "amt_paid" was {})'.format(
+                            action_details["amt"],
+                            raw_invoice["amt_paid"]
+                        )
+                    )
+                    checkpoint_helper.set_checkpoint("memo_invalid")
+                    continue
+
             try:
                 validators.validate_memo(action_details)
             except ValidationError as e:
@@ -415,12 +451,12 @@ class Runner(object):
             if action:
                 if action in ["Upvote", "Accept"]:
                     vote_type = Vote.VOTE_TYPE_MAP[action]
-                    change = settings.PAYMENT_AMOUNT
+                    change = action_details["amt"]
                     post_id = action_details["post_id"]
                     try:
                         post = Post.objects.get(pk=post_id)
                     except (ObjectDoesNotExist, ValueError):
-                        logger.error("Skipping vote. The post for vote does not exist: {}".format(action_details))
+                        logger.error("SKIPPING PAYED INVOICE for vote. The post for vote does not exist: {}".format(action_details))
                         checkpoint_helper.set_checkpoint("invalid_post")
                         continue
 
@@ -485,11 +521,11 @@ class Runner(object):
                     valid = True
                     for keyword in ["post_id", "amt"]:
                         if keyword not in action_details:
-                            logger.warn("Bounty invalid because {} is missing".format(keyword))
+                            logger.warning("Bounty invalid because {} is missing".format(keyword))
                             valid = False
 
                     if not valid:
-                        logger.warn("Could not start Bounty: bounty_invalid")
+                        logger.warning("Could not start Bounty: bounty_invalid")
                         checkpoint_helper.set_checkpoint("bounty_invalid")
                         continue
 

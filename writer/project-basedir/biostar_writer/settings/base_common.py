@@ -4,7 +4,7 @@ Setting common to reader and writer
 
 from datetime import timedelta
 
-PAYMENT_AMOUNT = 2  # in sats
+POST_PAYMENT_AMOUNT = 2  # in sats
 
 API_TIMEOUT = 5  # seconds
 

@@ -1,0 +1,23 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load crispy_forms_tags %}
+{% load cache %}
+{% load static %}
+
+{% block page_title %}
+    Customize Vote
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="row">
+        <div class="col-md-8 col-md-offset-1">
+            {% crispy form %}
+        </div>
+    </div>
+    <div class="col-xs-3">
+        <div class="user-sidebar">
+        </div>
+    </div>
+
+{% endblock %}

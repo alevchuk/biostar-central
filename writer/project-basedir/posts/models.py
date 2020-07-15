@@ -373,7 +373,8 @@ class Post(models.Model):
         obj = dict(
             action="Upvote",
             post_id=self.id,
-            unixtime=int(time.time())
+            unixtime=int(time.time()),
+            amt=1,
         )
         memo = json_util.serialize_memo(obj)
         url = reverse("vote-publish", kwargs=dict(memo=memo))
@@ -384,7 +385,8 @@ class Post(models.Model):
         obj = dict(
             action="Accept",
             post_id=self.id,
-            unixtime=int(time.time())
+            unixtime=int(time.time()),
+            amt=1,
         )
         memo = json_util.serialize_memo(obj)
         url = reverse("accept-preview", kwargs=dict(memo=memo))
@@ -467,7 +469,8 @@ class PostPreview(models.Model):
                 content=validators.validate_signable_field(self.content),
                 unixtime=int(
                     (self.date - datetime.datetime(1970,1,1).replace(tzinfo=utc)).total_seconds()
-                )
+                ),
+                amt=settings.POST_PAYMENT_AMOUNT,
             )
         else:
             obj = dict(
@@ -476,7 +479,8 @@ class PostPreview(models.Model):
                 content=validators.validate_signable_field(self.content),
                 unixtime=int(
                     (self.date - datetime.datetime(1970,1,1).replace(tzinfo=utc)).total_seconds()
-                )
+                ),
+                amt=settings.POST_PAYMENT_AMOUNT,
             )
 
         memo = json_util.serialize_memo(obj)

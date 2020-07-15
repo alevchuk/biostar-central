@@ -3,7 +3,7 @@ from django.conf import settings
 
 from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate, api
-from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, PostPreviewView, VotePublishView, PostPublishView, AcceptPreviewView
+from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, PostPreviewView, VotePublishView, PostPublishView, AcceptPreviewView, VoteCustomizeView
 from biostar.apps.users.views import DigestManager
 from biostar.apps.util.views import QRCode, PaymentCheck, ChannelOpenView, TakeCustodyView
 from biostar.apps.bounty.views import BountyFormView, BountyPublishView
@@ -92,6 +92,7 @@ urlpatterns = [
 
     url(r'^x/publish/vote/best_node/(?P<memo>{})/$'.format(MEMO_RE), VotePublishView.as_view(), name="vote-publish"),
     url(r'^x/publish/vote/(?P<node_id>\d+)/(?P<memo>{})/$'.format(MEMO_RE), VotePublishView.as_view(), name="vote-publish-node-selected"),
+    url(r'^x/publish/vote_customize/(?P<memo>{})/$'.format(MEMO_RE), VoteCustomizeView.as_view(), name="vote-customize"),
 
     url(r'^x/publish/accept/best_node/(?P<memo>{})/$'.format(MEMO_RE), VotePublishView.as_view(), name="accept-publish"),
     url(r'^x/publish/accept/(?P<node_id>\d+)/(?P<memo>{})/$'.format(MEMO_RE), VotePublishView.as_view(), name="accept-publish-node-selected"),

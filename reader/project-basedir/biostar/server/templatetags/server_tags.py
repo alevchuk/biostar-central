@@ -283,7 +283,7 @@ def post_preview_body(context, post_preview):
         publish_url=post_preview.get_publish_url(memo),
         preview_url=post_preview.get_preview_url(post_preview.memo),
         request=context['request'],
-        payment_amount=settings.PAYMENT_AMOUNT,
+        payment_amount=settings.POST_PAYMENT_AMOUNT,
         memo_json=json.dumps(json_util.deserialize_memo(memo), sort_keys=True),
         form=context["form"],
         user=context['user'],
@@ -302,7 +302,7 @@ def accept_preview_body(context, post):
     return dict(
         post=post,
         request=context['request'],
-        payment_amount=settings.PAYMENT_AMOUNT,
+        payment_amount=settings.POST_PAYMENT_AMOUNT,
         form=context["form"],
         memo_json=json.dumps(memo, sort_keys=True),
     )

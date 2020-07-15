@@ -111,12 +111,12 @@ class CreateInvoiceViewSet(viewsets.ModelViewSet):
 
             else:
                 # TODO: surface addinvoice timeout and other exceptions back to the user
-                # Bounties can specify amount in the memo, everything else defaults to settings.PAYMENT_AMOUNT
+                # Bounties can specify amount in the memo
                 deserialized_memo = json_util.deserialize_memo(memo)
                 command_results = lnclient.addinvoice(
                     memo,
                     node.rpcserver,
-                    amt=deserialized_memo.get("amt", settings.PAYMENT_AMOUNT),
+                    amt=deserialized_memo["amt"],
                     expiry=settings.INVOICE_EXPIRY,
                 )
 
