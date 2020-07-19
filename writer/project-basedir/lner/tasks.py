@@ -286,7 +286,7 @@ class Runner(object):
                             "r_hash": invoice_obj.r_hash,
                             "creation_date": str(creation_unixtime),
                             "expiry": str(creation_unixtime + 120),
-                            "amt_paid": action_details["amt"],
+                            "amt_paid": int(action_details["amt"]) * 1000,
                         }
                     )
 
@@ -429,10 +429,10 @@ class Runner(object):
                 checkpoint_helper.set_checkpoint("memo_invalid")
                 continue
             else:
-                if int(action_details["amt"]) != int(raw_invoice["amt_paid"]):
+                if int(action_details["amt"]) * 1000 != int(raw_invoice["amt_paid"]):
                     logger.error(
                         'SKIPPING PAYED INVOICE. "amt" does not matched what is payed ("amt" was {}, "amt_paid" was {})'.format(
-                            action_details["amt"],
+                            int(action_details["amt"]) * 1000,
                             raw_invoice["amt_paid"]
                         )
                     )
