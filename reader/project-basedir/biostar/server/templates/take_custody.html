@@ -123,9 +123,9 @@
             </div>
         </div>
 
-        <h2>Take sats for the bounty award</h2>
+        <h2>Take sats for the incentive award</h2>
 
-        <p>Congratulations <a href="{% url 'user-details' post.author.id %}">{% coolname post.author %}</a> you earned <span style="color: orange;">{{amt|intcomma}} sat <img width=20 src="/static/bitcoin.png"></a>ounty</span> for your answer! The winning answer was: <a href="{% url 'post-details' post.id }}">ln.support/{{ post.id }}</a></p>
+        <p>Congratulations <a href="{% url 'user-details' post.author.id %}">{% coolname post.author %}</a> you earned <span style="color: orange;">{{amt|intcomma}} sat <img width=20 src="/static/bitcoin.png"></a></span> for your answer! The winning answer was: <a href="{% url 'post-details' post.id }}">ln.support/{{ post.id }}</a></p>
 
 
         <p>Please create a Lightning invoice for {{amt|intcomma}} sats and paste it bellow.</p>

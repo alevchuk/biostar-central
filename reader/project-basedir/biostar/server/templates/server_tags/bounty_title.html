@@ -2,7 +2,7 @@
 
 {% if bounty_sats %}
     <div class="title" >
-        <img width=30 src="/static/bitcoin.png"></a><span style="color: orange;">ounty {{ bounty_sats|intcomma }} sats</span> {{ post.get_type_display }}: <span itemprop="name">{{ post.get_title }}</span>
+        <img width=30 src="/static/bitcoin.png"></a><span style="color: orange;">{{ bounty_sats|intcomma }} sats</span> {{ post.get_type_display }}: <span itemprop="name">{{ post.get_title }}</span>
     </div>
 {% else %}
     <div class="title" ><span itemprop="name">{{ post.get_title }}</span></div>

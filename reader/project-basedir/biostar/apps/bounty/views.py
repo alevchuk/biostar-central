@@ -17,7 +17,7 @@ from biostar.apps.util import ln
 from common import json_util
 from common.log import logger
 
-class BontyForm(forms.Form):
+class IncentiveForm(forms.Form):
     FIELDS = ["amt"]
 
     amt = forms.CharField(
@@ -25,19 +25,19 @@ class BontyForm(forms.Form):
         label="Amount (in sats)",
         required=True,
         error_messages={
-            'required': "Bounty amount is required"
+            'required': "Incentive amount is required"
         },
         max_length=20, min_length=1,
         validators=[],
-        help_text="Amount of sats to start or increase the bounty",
+        help_text="Amount of sats to start or increase the incentive",
     )
 
     def __init__(self, *args, **kwargs):
-        super(BontyForm, self).__init__(*args, **kwargs)
+        super(IncentiveForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                'Bounty',
+                'Incentive',
                 'amt'
             ),
             ButtonHolder(
@@ -48,7 +48,7 @@ class BontyForm(forms.Form):
 
 class BountyFormView(TemplateView):
     template_name = "bounty_form.html"
-    form_class = BontyForm
+    form_class = IncentiveForm
 
     def get_context_data(self, **kwargs):
         context = super(BountyFormView, self).get_context_data(**kwargs)

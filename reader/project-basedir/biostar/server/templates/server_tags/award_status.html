@@ -4,12 +4,12 @@
 
 {% if award_anticipated %}
     <div class="post-action" style="width: 70%">
-    If no signed answers with higher vote count emerge, then <span style="color: orange;">{{bounty_sats|intcomma}} sat <img width=20 src="/static/bitcoin.png"></a>ounty</span> will be awarded to the author of this answer <b>in {{preliminary_award_time|naturaltime}}</b>
+    If no signed answers with higher vote count emerge, then <span style="color: orange;"><img width=20 src="/static/bitcoin.png" />{{bounty_sats|intcomma}} sat</span> will be awarded to the author of this answer <b>in {{preliminary_award_time|naturaltime}}</b>
     </div>
 
 {% elif award_granted %}
     <div class="post-action" style="width: 70%">
-    Congratulations {% coolname post.author %} you earned <span style="color: orange;">{{bounty_sats|intcomma}} sat <img width=20 src="/static/bitcoin.png"></a>ounty</span> for this post!</div>
+    Congratulations {% coolname post.author %} you earned <span style="color: orange;"> <img width=20 src="/static/bitcoin.png" />{{bounty_sats|intcomma}} sat</span> for this post!</div>
 
     <div class="post-action" style="width: 70%">
     Please <a href="{{ take_custody_url }}">take sats here</a>.

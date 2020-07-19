@@ -5,23 +5,23 @@
 {% load static %}
 
 {% block page_title %}
-    New Bounty
+    New Incentive
 {% endblock %}
 
 {% block content %}
     <div class="row">
         <div class="row">
         <div class="col-md-8 col-md-offset-1">
-            <p>Bounty is a sats incentive to encourage a good answer</p>
+            <p>Incentive is a sats amount to encourage a good answer</p>
             <ol>
-                <li>Bounty sender is anonymous</li>
-                <li>Anyone can increase the current bounty</li>
-                <li>Only signed answers can receive a bounty award</li>
-                <li>Bounty is awarded to the signed answer with the most votes</li>
-                <li>Bounty is awarded 3 days after the first signed answer is posted unless there is a better answer</li>
+                <li>Incentive sender is anonymous</li>
+                <li>Anyone can increase the current incentive</li>
+                <li>Only signed answers can receive incentives</li>
+                <li>Incentive is awarded to the signed answer with the most votes</li>
+                <li>Incentive is awarded 3 days after the first signed answer is posted unless there is a better answer</li>
                 <li>Every time a better answer is posted the 3 day timer starts over</li>
-                <li>Bounty only applies to answers posted after the initial bounty was started. If bounty is increased, the time of increase is not taken into the account.</li>
-                <li>If the answer author does not take custody of the bounty within 7 days the award becomes available to the next best answer</li>
+                <li>Incentive only applies to answers posted after the initial incentive was started. If incentive is increased, the time of increase does not matter.</li>
+                <li>If the answer author does not take custody of the incentive within 7 days the award becomes available to the next best answer</li>
             </ol>
 
              <span itemscope itemtype="http://schema.org/Question">
@@ -29,7 +29,7 @@
              </span>
 
              {% if previous_bounty_sats %}
-                 You are adding to a previous bounty
+                 You are adding to a previous incentive
              {% endif %}
 
             {% crispy form %}

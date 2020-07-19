@@ -3,7 +3,7 @@
 {% load humanize %}
 
 {% block page_title %}
-    Bounty Publish
+    Incentive Publish
 {% endblock %}
 
 {% block content %}
@@ -33,7 +33,7 @@
     <div><img src="/payment_check/{{ node_id }}/{{ memo }}/payment_check.svg" /></div>
 
     <h2>Pay to publish</h2>
-    <p>The bonty will be published after a payment is made on the Lightning Network using the invoice.
+    <p>Incentive will be published after a payment is made on the Lightning Network using the invoice.
     Payment of <b>{{ payment_amount|intcomma }} sats</b> is required.</p>
     <p>Your invoice is:</p>
     <pre>{{ pay_req }}</pre>
