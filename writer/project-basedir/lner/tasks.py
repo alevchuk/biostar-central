@@ -145,9 +145,7 @@ def award_bounty(question_post):
             award.save()
             logger.info("Updated existing award {}".format(award))
 
-    # 6. update award time on the Bounty
-    if award.post != top_answer:
-        update_deadline(earliest_bounty, new_deadline)
+            update_deadline(earliest_bounty, new_deadline)
 
 
 class CheckpointHelper(object):
@@ -511,7 +509,7 @@ class Runner(object):
                     else:
                         Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change)
 
-                        # Upvote on an Aswer is the trigger for potentian bounty awards
+                        # Upvote on an Answer is the trigger for potential bounty awards
                         if post.type == Post.ANSWER and post.author != get_anon_user():
                             award_bounty(question_post=post.parent)
 
@@ -607,7 +605,7 @@ class Runner(object):
                 # TODO: Catch failures when post title is duplicate (e.g. another node already saved post)
                 post.save()
 
-                # New Answer is the trigger for potentian bounty awards
+                # New Answer is the trigger for potential bounty awards
                 if post.type == Post.ANSWER and user != get_anon_user():
                     award_bounty(question_post=post.parent)
 
