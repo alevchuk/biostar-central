@@ -331,11 +331,14 @@ class Runner(object):
                 logger.debug("Raw invoice from node was: {}".format(raw_invoice))
 
                 if raw_invoice['state'] == "CANCELED":
-                    logger.debug("Skipping add_index {} because invoice is cancelled...".format(add_index_from_node))
+                    logger.info("Skipping add_index {} because invoice is canceled...".format(add_index_from_node))
                     retry_mini_map[add_index_from_node] = False  # advance global checkpoint
 
-                elif not raw_invoice['memo'].startswith("ln.support_"):
-                    logger.debug("Skipping add_index {} because this is not for ln.support_".format(add_index_from_node))
+                elif not raw_invoice['memo'].startswith("{}_".format(FRIENDLY_PREFIX)):
+                    logger.info("Skipping add_index {} because this is not for {}_".format(
+                        add_index_from_node,
+                        FRIENDLY_PREFIX
+                    ))
                     retry_mini_map[add_index_from_node] = False  # advance global checkpoint
 
                 else:
