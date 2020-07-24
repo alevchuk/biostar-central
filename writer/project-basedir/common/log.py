@@ -1,7 +1,7 @@
 import logging
-from prometheus_client import Gauge
+from prometheus_client import Counter
 
-LOG_COUNT = Gauge("log_count", "Count of log messages", ["level"])
+LOG_LEVELS = Counter("log_levels", "Count of log messages by level", ["level"])
 
 try:
     from pathlib import Path
@@ -15,10 +15,10 @@ class MetricsHandler(logging.StreamHandler):
     def __init__(self):
         logging.StreamHandler.__init__(self)
         for levelname in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-            LOG_COUNT.labels(levelname).set(0)
+            LOG_LEVELS.labels(levelname)
 
     def emit(self, record):
-        LOG_COUNT.labels(record.levelname).inc()
+        LOG_LEVELS.labels(record.levelname).inc()
 
 
 def getLogger(name):
