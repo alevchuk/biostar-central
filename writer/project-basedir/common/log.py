@@ -14,6 +14,8 @@ except Exception:
 class MetricsHandler(logging.StreamHandler):
     def __init__(self):
         logging.StreamHandler.__init__(self)
+        for levelname in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+            LOG_COUNT.labels(levelname).set(0)
 
     def emit(self, record):
         LOG_COUNT.labels(record.levelname).inc()
