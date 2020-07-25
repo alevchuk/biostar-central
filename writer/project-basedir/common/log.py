@@ -1,7 +1,8 @@
 import logging
+import sys
 from prometheus_client import Counter
 
-LOG_LEVELS = Counter("log_levels", "Count of log messages by level", ["level"])
+LOG_LEVELS = Counter("log_levels", "Count of log messages by level", ["level", "service"])
 
 try:
     from pathlib import Path
@@ -14,11 +15,19 @@ except Exception:
 class MetricsHandler(logging.StreamHandler):
     def __init__(self):
         logging.StreamHandler.__init__(self)
+        self.service = "unknown"
+
+        if "runserver" in sys.argv:
+            self.service = "writer-api"
+
+        if "process_tasks" in sys.argv:
+            self.service = "writer-tasks"
+
         for levelname in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-            LOG_LEVELS.labels(levelname)
+            LOG_LEVELS.labels(levelname, self.service)
 
     def emit(self, record):
-        LOG_LEVELS.labels(record.levelname).inc()
+        LOG_LEVELS.labels(record.levelname, self.service).inc()
 
 
 def getLogger(name):
