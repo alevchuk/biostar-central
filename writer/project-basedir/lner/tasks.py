@@ -735,7 +735,6 @@ def run_many():
 
 
 logger.info("Starting metrics on port {} ...".format(METRICS_PORT))
-
 start_http_server(METRICS_PORT)
 logger.info("Metrics server started")
 
