@@ -42,10 +42,10 @@ def run(cmd, timeout=5, try_num=3, run_try_sleep=1, log_cmd=True, return_stderr_
                 ).decode("utf-8")
             break
         except Exception as e:
-            logger.exception(e)
+            logger.warning("cli.py run exception: {}".format(e))
 
             raw = e.output
-            logger.error("Command output was: {}".format(raw))
+            logger.warning("Command output during exception was: {}".format(raw))
 
             logger.info("Sleeping for {} seconds".format(run_try_sleep))
             time.sleep(run_try_sleep)
