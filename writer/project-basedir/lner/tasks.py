@@ -191,6 +191,38 @@ class Runner(object):
         self.invoice_count_from_db = {}  # Dict[LightningNode, int]]
         self.invoice_count_from_nodes = {}  # Dict[LightningNode, int]]
 
+        self.total_pre_processing_times_array = []
+        self.total_run_processing_times_array = []
+        self.pre_processing_times_array = []
+        self.run_processing_times_array = []
+
+    def reset_timing_stats(self):
+        self.pre_processing_times_array = []
+        self.run_processing_times_array = []
+
+    def log_timing_stats(self):
+        logger.debug("Pre-run Max was {:.3f} seconds".format(max(self.pre_processing_times_array)))
+        logger.debug("Pre-run Avg was {:.3f} seconds".format(sum(self.pre_processing_times_array) / len(self.pre_processing_times_array)))
+        logger.debug("Pre-run Min was {:.3f} seconds".format(min(self.pre_processing_times_array)))
+        logger.debug("\n")
+        logger.debug("Run Max was {:.3f} seconds".format(max(self.run_processing_times_array)))
+        logger.debug("Run Avg was {:.3f} seconds".format(sum(self.run_processing_times_array) / len(self.run_processing_times_array)))
+        logger.debug("Run Min was {:.3f} seconds".format(min(self.run_processing_times_array)))
+        logger.debug("\n")
+
+    def log_cumulative_timing_stats(self):
+        logger.info("\n")
+        logger.info("Cumulative pre-run total was {:.3f} seconds".format(sum(self.total_pre_processing_times_array)))
+        logger.info("Cumulative pre-run max was {:.3f} seconds".format(max(self.total_pre_processing_times_array)))
+        logger.info("Cumulative pre-run avg was {:.3f} seconds".format(sum(self.total_pre_processing_times_array) / len(self.total_pre_processing_times_array)))
+        logger.info("Cumulative pre-run min was {:.3f} seconds".format(min(self.total_pre_processing_times_array)))
+
+        logger.info("\n")
+        logger.info("Cumulative total was {:.3f} seconds".format(sum(self.total_run_processing_times_array)))
+        logger.info("Cumulative max was {:.3f} seconds".format(max(self.total_run_processing_times_array)))
+        logger.info("Cumulative avg was {:.3f} seconds".format(sum(self.total_run_processing_times_array) / len(self.total_run_processing_times_array)))
+        logger.info("Cumulative min was {:.3f} seconds".format(min(self.total_run_processing_times_array)))
+
     def pre_run(self, node):
         start_time = time.time()
         self.all_invoices_from_db[node] = {}
@@ -226,7 +258,9 @@ class Runner(object):
             )
         )
 
-        return processing_wall_time
+        self.pre_processing_times_array.append(processing_wall_time)
+        self.total_pre_processing_times_array.append(processing_wall_time)
+
 
     def run_one_node(self, node):
         start_time = time.time()
@@ -650,22 +684,43 @@ class Runner(object):
             LAST_CHECK_GAUGE.labels(node.node_name).set_to_current_time()
 
         logger.debug("Processing node {} took {:.3f} seconds".format(node.node_name, processing_wall_time))
-        return processing_wall_time
 
+        self.run_processing_times_array.append(processing_wall_time)
+        self.total_run_processing_times_array.append(processing_wall_time)
+
+
+def one_node_helper(runner, node):
+    created = (node.global_checkpoint == -1)
+    if created:
+        logger.info("Global checkpoint does not exist")
+        node.global_checkpoint = 0
+        node.save()
+
+    # pre-run!
+    runner.pre_run(node)
+
+    # run
+    runner.run_one_node(node)
+
+    logger.debug(
+        (
+            "Processed {} invoices from node and {} from db\n\n\n\n\n"
+        ).format(
+            runner.invoice_count_from_nodes[node],
+            runner.invoice_count_from_db[node],
+        )
+    )
 
 @background(queue='queue-1', remove_existing_tasks=True)
 def run_many():
     start_time = time.time()
     runner = Runner()
-    total_pre_processing_times_array = []
-    total_run_processing_times_array = []
 
     num_runs = 10
     for _ in range(num_runs):
         node_list = LightningNode.objects.all()
 
-        pre_processing_times_array = []
-        run_processing_times_array = []
+        runner.reset_timing_stats()
 
         # initialize checkpoints
         for node in node_list:
@@ -675,57 +730,18 @@ def run_many():
                 logger.debug("Node {} disabled, skipping...".format(node.node_name))
                 continue
 
-            created = (node.global_checkpoint == -1)
-            if created:
-                logger.info("Global checkpoint does not exist")
-                node.global_checkpoint = 0
-                node.save()
+            try:
+                one_node_helper(runner, node)
 
-            # pre-run!
-            p = runner.pre_run(node)
-
-            # run
-            t = runner.run_one_node(node)
-
-            pre_processing_times_array.append(p)
-            total_pre_processing_times_array.append(p)
-
-            run_processing_times_array.append(t)
-            total_run_processing_times_array.append(t)
-
-            logger.debug(
-                (
-                    "Processed {} invoices from node and {} from db\n\n\n\n\n"
-                ).format(
-                    runner.invoice_count_from_nodes[node],
-                    runner.invoice_count_from_db[node],
-                )
-            )
+            except Exception as e:
+                logger.debug("Exception in run_many: {}".format(e))
+                logger.exception(e)
 
             sleep(BETWEEN_NODES_DELAY)
 
-        logger.debug("Pre-run Max was {:.3f} seconds".format(max(pre_processing_times_array)))
-        logger.debug("Pre-run Avg was {:.3f} seconds".format(sum(pre_processing_times_array) / len(pre_processing_times_array)))
-        logger.debug("Pre-run Min was {:.3f} seconds".format(min(pre_processing_times_array)))
-        logger.debug("\n")
-        logger.debug("Run Max was {:.3f} seconds".format(max(run_processing_times_array)))
-        logger.debug("Run Avg was {:.3f} seconds".format(sum(run_processing_times_array) / len(run_processing_times_array)))
-        logger.debug("Run Min was {:.3f} seconds".format(min(run_processing_times_array)))
+        runner.log_timing_stats()
 
-        logger.debug("\n")
-
-
-    logger.info("\n")
-    logger.info("Cumulative pre-run total was {:.3f} seconds".format(sum(total_pre_processing_times_array)))
-    logger.info("Cumulative pre-run max was {:.3f} seconds".format(max(total_pre_processing_times_array)))
-    logger.info("Cumulative pre-run avg was {:.3f} seconds".format(sum(total_pre_processing_times_array) / len(total_pre_processing_times_array)))
-    logger.info("Cumulative pre-run min was {:.3f} seconds".format(min(total_pre_processing_times_array)))
-
-    logger.info("\n")
-    logger.info("Cumulative total was {:.3f} seconds".format(sum(total_run_processing_times_array)))
-    logger.info("Cumulative max was {:.3f} seconds".format(max(total_run_processing_times_array)))
-    logger.info("Cumulative avg was {:.3f} seconds".format(sum(total_run_processing_times_array) / len(total_run_processing_times_array)))
-    logger.info("Cumulative min was {:.3f} seconds".format(min(total_run_processing_times_array)))
+    runner.log_cumulative_timing_stats()
 
     logger.info("\n")
     processing_wall_time = time.time() - start_time
