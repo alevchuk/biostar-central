@@ -201,27 +201,33 @@ class Runner(object):
         self.run_processing_times_array = []
 
     def log_timing_stats(self):
-        logger.debug("Pre-run Max was {:.3f} seconds".format(max(self.pre_processing_times_array)))
-        logger.debug("Pre-run Avg was {:.3f} seconds".format(sum(self.pre_processing_times_array) / len(self.pre_processing_times_array)))
-        logger.debug("Pre-run Min was {:.3f} seconds".format(min(self.pre_processing_times_array)))
-        logger.debug("\n")
-        logger.debug("Run Max was {:.3f} seconds".format(max(self.run_processing_times_array)))
-        logger.debug("Run Avg was {:.3f} seconds".format(sum(self.run_processing_times_array) / len(self.run_processing_times_array)))
-        logger.debug("Run Min was {:.3f} seconds".format(min(self.run_processing_times_array)))
-        logger.debug("\n")
+        if len(self.pre_processing_times_array) > 0:
+            logger.debug("Pre-run Max was {:.3f} seconds".format(max(self.pre_processing_times_array)))
+            logger.debug("Pre-run Avg was {:.3f} seconds".format(sum(self.pre_processing_times_array) / len(self.pre_processing_times_array)))
+            logger.debug("Pre-run Min was {:.3f} seconds".format(min(self.pre_processing_times_array)))
+            logger.debug("\n")
+
+        if len(self.run_processing_times_array) > 0:
+            logger.debug("Run Max was {:.3f} seconds".format(max(self.run_processing_times_array)))
+            logger.debug("Run Avg was {:.3f} seconds".format(sum(self.run_processing_times_array) / len(self.run_processing_times_array)))
+            logger.debug("Run Min was {:.3f} seconds".format(min(self.run_processing_times_array)))
+            logger.debug("\n")
 
     def log_cumulative_timing_stats(self):
-        logger.info("\n")
-        logger.info("Cumulative pre-run total was {:.3f} seconds".format(sum(self.total_pre_processing_times_array)))
-        logger.info("Cumulative pre-run max was {:.3f} seconds".format(max(self.total_pre_processing_times_array)))
-        logger.info("Cumulative pre-run avg was {:.3f} seconds".format(sum(self.total_pre_processing_times_array) / len(self.total_pre_processing_times_array)))
-        logger.info("Cumulative pre-run min was {:.3f} seconds".format(min(self.total_pre_processing_times_array)))
 
-        logger.info("\n")
-        logger.info("Cumulative total was {:.3f} seconds".format(sum(self.total_run_processing_times_array)))
-        logger.info("Cumulative max was {:.3f} seconds".format(max(self.total_run_processing_times_array)))
-        logger.info("Cumulative avg was {:.3f} seconds".format(sum(self.total_run_processing_times_array) / len(self.total_run_processing_times_array)))
-        logger.info("Cumulative min was {:.3f} seconds".format(min(self.total_run_processing_times_array)))
+        if len(self.total_pre_processing_times_array) > 0:
+            logger.info("\n")
+            logger.info("Cumulative pre-run total was {:.3f} seconds".format(sum(self.total_pre_processing_times_array)))
+            logger.info("Cumulative pre-run max was {:.3f} seconds".format(max(self.total_pre_processing_times_array)))
+            logger.info("Cumulative pre-run avg was {:.3f} seconds".format(sum(self.total_pre_processing_times_array) / len(self.total_pre_processing_times_array)))
+            logger.info("Cumulative pre-run min was {:.3f} seconds".format(min(self.total_pre_processing_times_array)))
+
+        if len(self.total_run_processing_times_array) > 0:
+            logger.info("\n")
+            logger.info("Cumulative total was {:.3f} seconds".format(sum(self.total_run_processing_times_array)))
+            logger.info("Cumulative max was {:.3f} seconds".format(max(self.total_run_processing_times_array)))
+            logger.info("Cumulative avg was {:.3f} seconds".format(sum(self.total_run_processing_times_array) / len(self.total_run_processing_times_array)))
+            logger.info("Cumulative min was {:.3f} seconds".format(min(self.total_run_processing_times_array)))
 
     def pre_run(self, node):
         start_time = time.time()
@@ -722,14 +728,17 @@ def run_many():
 
         runner.reset_timing_stats()
 
-        # initialize checkpoints
         exceptions_per_node = {}
+        total_enabled_nodes = 0
+
         for node in node_list:
             logger.debug("--------------------- {} id={} ----------------------------".format(node.node_name, node.id))
 
             if not node.enabled:
                 logger.debug("Node {} disabled, skipping...".format(node.node_name))
                 continue
+            else:
+                total_enabled_nodes += 1
 
             try:
                 one_node_helper(runner, node)
@@ -740,7 +749,7 @@ def run_many():
 
             sleep(BETWEEN_NODES_DELAY)
 
-        if len(exceptions_per_node) >= len(node_list):
+        if len(exceptions_per_node) >= total_enabled_nodes:
             logger.error("All nodes has exceptions, e.g. {}".format(exceptions_per_node[node_list[0].node_name]))
 
         runner.log_timing_stats()
