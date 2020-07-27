@@ -736,7 +736,7 @@ def run_many():
 
             except Exception as e:
                 logger.warning("Exception in one of the nodes in run_many: {}".format(e))
-                exceptions_per_node[node.name] = e
+                exceptions_per_node[node.node_name] = e
 
             sleep(BETWEEN_NODES_DELAY)
 
