@@ -723,6 +723,7 @@ def run_many():
         runner.reset_timing_stats()
 
         # initialize checkpoints
+        exceptions_per_node = {}
         for node in node_list:
             logger.debug("--------------------- {} id={} ----------------------------".format(node.node_name, node.id))
 
@@ -734,10 +735,13 @@ def run_many():
                 one_node_helper(runner, node)
 
             except Exception as e:
-                logger.debug("Exception in run_many: {}".format(e))
-                logger.exception(e)
+                logger.warning("Exception in one of the nodes in run_many: {}".format(e))
+                exceptions_per_node[node.name] = e
 
             sleep(BETWEEN_NODES_DELAY)
+
+        if len(exceptions_per_node) >= len(node_list):
+            logger.error("All nodes has exceptions, e.g. {}".format(exceptions_per_node[node_list[0].node_name]))
 
         runner.log_timing_stats()
 
