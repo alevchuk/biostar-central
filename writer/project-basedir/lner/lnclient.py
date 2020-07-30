@@ -107,4 +107,4 @@ def payinvoice(payreq, rpcserver, mock=False):
         "--pay_req", payreq,
     ]
 
-    return cli.run(cmd, log_cmd=True, return_stderr_on_fail=True, try_num=3, timeout=60)  # 12x the default timeout!
+    return cli.run(cmd, log_cmd=True, return_stderr_on_fail=True, try_num=3, timeout=settings.PAYAWARD_TIMEOUT)

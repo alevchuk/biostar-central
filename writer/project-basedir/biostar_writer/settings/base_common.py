@@ -7,6 +7,7 @@ from datetime import timedelta
 POST_PAYMENT_AMOUNT = 2  # in sats
 
 API_TIMEOUT = 5  # seconds
+PAYAWARD_TIMEOUT = 60  # seconds
 
 MAX_MEMO_SIZE = 600  # includes the length of the friendly prefix
 MAX_TITLE = 100

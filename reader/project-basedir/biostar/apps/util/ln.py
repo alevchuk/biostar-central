@@ -18,7 +18,7 @@ class CheckResponce(object):
 class LNUtilError(Exception):
     pass
 
-def call_endpoint(path, args={}, as_post=False):
+def call_endpoint(path, args={}, as_post=False, timeout=settings.API_TIMEOUT):
     if settings.READER_TO_WRITER_AUTH_TOKEN is not None:
         headers = {'Authorization': 'Token {}'.format(settings.READER_TO_WRITER_AUTH_TOKEN)}
     else:
@@ -27,9 +27,9 @@ def call_endpoint(path, args={}, as_post=False):
     full_path = 'http://{}:8000/{}.json'.format(settings.WRITER_HOST, path)
     try:
         if as_post:
-            return requests.post(full_path, headers=headers, data=args, timeout=settings.API_TIMEOUT)
+            return requests.post(full_path, headers=headers, data=args, timeout=timeout)
         else:
-            return requests.get(full_path, headers=headers, params=args, timeout=settings.API_TIMEOUT)
+            return requests.get(full_path, headers=headers, params=args, timeout=timeout)
 
     except requests.exceptions.ConnectionError as e:
         logger.exception(e)
@@ -163,7 +163,11 @@ def verifymessage(memo, sig):
     return response_parsed
 
 def payaward(node_id, award_id, invoice, sig):
-    response = call_endpoint('ln/payaward', args={"node_id": node_id, "award_id": award_id, "invoice": invoice, "sig": sig})
+    response = call_endpoint(
+        'ln/payaward',
+        args={"node_id": node_id, "award_id": award_id, "invoice": invoice, "sig": sig},
+        timeout=settings.PAYAWARD_TIMEOUT
+    )
     if response.status_code != 200:
         error_msg = (
             "Got API error when calling payaward, http_status={},node_id={},award_id={},invoice={},sig={}".format(
