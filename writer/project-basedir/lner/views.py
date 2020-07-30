@@ -116,7 +116,7 @@ class CreateInvoiceViewSet(viewsets.ModelViewSet):
                 command_results = lnclient.addinvoice(
                     memo,
                     node.rpcserver,
-                    amt=deserialized_memo["amt"],
+                    amt=deserialized_memo.get("amt", settings.PAYMENT_AMOUNT),
                     expiry=settings.INVOICE_EXPIRY,
                 )
 
