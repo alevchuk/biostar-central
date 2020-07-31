@@ -95,7 +95,7 @@ def decodepayreq(payreq, rpcserver, mock=False):
 
     return cli.run(cmd, log_cmd=True, return_stderr_on_fail=True)
 
-def payinvoice(payreq, rpcserver, mock=False):
+def payinvoice(payreq, rpcserver, timeout, mock=False):
     if mock:
         return {"success": True, "stdouterr": ""}
 
@@ -107,4 +107,4 @@ def payinvoice(payreq, rpcserver, mock=False):
         "--pay_req", payreq,
     ]
 
-    return cli.run(cmd, log_cmd=True, return_stderr_on_fail=True, try_num=3, timeout=settings.PAYAWARD_TIMEOUT)
+    return cli.run(cmd, log_cmd=True, return_stderr_on_fail=True, try_num=3, timeout=timeout)

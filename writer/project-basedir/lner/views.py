@@ -372,7 +372,7 @@ class PayAwardViewSet(viewsets.ModelViewSet):
 
         logger.info("about to pay")
 
-        pay_result = lnclient.payinvoice(payreq=invoice, rpcserver=node.rpcserver, mock=settings.MOCK_LN_CLIENT)
+        pay_result = lnclient.payinvoice(payreq=invoice, rpcserver=node.rpcserver, timeout=settings.PAYAWARD_TIMEOUT, mock=settings.MOCK_LN_CLIENT)
         logger.info("pay_result: {}".format(pay_result))
 
         if pay_result["success"] is not True:
