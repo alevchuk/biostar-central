@@ -267,6 +267,12 @@ class Runner(object):
         self.pre_processing_times_array.append(processing_wall_time)
         self.total_pre_processing_times_array.append(processing_wall_time)
 
+    def log_error(self, msg, node, warning=False):
+        final_msg = "{} (node_name={}, global_checkpoint={})".format(msg, node.node_name, node.global_checkpoint)
+        if warning:
+            logger.warning(final_msg)
+        else:
+            logger.error(final_msg)
 
     def run_one_node(self, node):
         start_time = time.time()
@@ -280,10 +286,10 @@ class Runner(object):
 
         if node not in self.all_invoices_from_db:
             invoice_list_from_db = {}
-            logger.warning("DB has no invoice entry for this node: {}".format(node.node_name))
-            if len(self.all_invoices_from_db[node]) == 0:
-                logger.warning("DB has no invoices for this node")
+            self.log_error("DB has no invoice entry for this node", node=node, warning=True)
         else:
+            if len(self.all_invoices_from_db[node]) == 0:
+                self.log_error("DB has entry entry for this node, yet no invoices", node=node, warning=True)
             invoice_list_from_db = self.all_invoices_from_db[node]
 
         # example of invoices_details: {"invoices": [], 'first_index_offset': '5', 'last_index_offset': '72'}
@@ -310,7 +316,7 @@ class Runner(object):
                 action_details = json_util.deserialize_memo(invoice_request.memo)
 
                 if "amt" not in action_details:
-                    logger.error('NOT MOCKING because invoice_request does not have "amt": {}'.format(action_details))
+                    self.log_error(f"NOT MOCKING because invoice_request does not have 'amt': {action_details}", node=node)
                 else:
                     invoice_list_from_node.append(
                         {
@@ -397,7 +403,7 @@ class Runner(object):
                     retry_mini_map[add_index_from_node] = False  # advance global checkpoint
 
                 else:
-                    logger.error("Unknown add_index {} something is fishy in node {}, try again later".format(add_index_from_node, node.node_name))
+                    self.log_error(f"Unknown add_index {add_index_from_node} something is fishy, try again later", node=node)
                     retry_mini_map[add_index_from_node] = True  # error, something is fishy, try again later
                     healthy = False
 
@@ -405,11 +411,14 @@ class Runner(object):
 
             # Validate
             if invoice.invoice_request.memo != raw_invoice["memo"]:
-                logger.error("Memo in DB does not match the one in invoice request: db=({}) invoice_request=({}) node={}".format(
-                    invoice.invoice_request.memo,
-                    raw_invoice["memo"],
-                    node.node_name
-                ))
+                self.log_error(
+                    "Memo in DB does not match the one in invoice request: db=({}) invoice_request=({})".format(
+                        invoice.invoice_request.memo,
+                        raw_invoice["memo"]
+                    ),
+                    node=node
+                )
+
 
                 retry_mini_map[add_index_from_node] = True  # error, try again later
                 healthy = False
@@ -417,11 +426,13 @@ class Runner(object):
                 continue
 
             if invoice.pay_req != raw_invoice["payment_request"]:
-                logger.error("Payment request does not match the one in invoice request: db=({}) invoice_request=({}) node={}".format(
-                    invoice.pay_req,
-                    raw_invoice["payment_request"],
-                    node.node_name
-                ))
+                self.log_error(
+                    "Payment request does not match the one in invoice request: db=({}) invoice_request=({})".format(
+                        invoice.pay_req,
+                        raw_invoice["payment_request"]
+                    ),
+                    node=node
+                )
 
                 retry_mini_map[add_index_from_node] = True  # error, try again later
                 healthy = False
@@ -468,11 +479,9 @@ class Runner(object):
                 continue
 
             if "amt" not in action_details:
-                logger.error(
-                    'SKIPPING PAYED INVOICE. "amt" is not specified in memo {} from node {}'.format(
-                        action_details,
-                        node.node_name
-                    )
+                self.log_error(
+                    f"SKIPPING PAYED INVOICE. 'amt' is not specified in memo {action_details}",
+                    node=node
                 )
                 checkpoint_helper.set_checkpoint("memo_invalid")
                 continue
@@ -480,22 +489,21 @@ class Runner(object):
             try:
                 int(action_details["amt"])
             except Exception:
-                logger.error(
-                    'SKIPPING PAYED INVOICE. "amt" is not an integer in memo {} for node {}'.format(
-                        action_details,
-                        node.node_name
-                    )
+                self.log_error(
+                    f"SKIPPING PAYED INVOICE. 'amt' is not an integer in memo {action_details}",
+                    node=node
                 )
+
                 checkpoint_helper.set_checkpoint("memo_invalid")
                 continue
             else:
                 if int(action_details["amt"]) * 1000 != int(raw_invoice["amt_paid"]):
-                    logger.error(
-                        'SKIPPING PAYED INVOICE. "amt" does not matched what is payed ("amt" was {}, "amt_paid" was {}) from node {}'.format(
+                    self.log_error(
+                        'SKIPPING PAYED INVOICE. "amt" does not matched what is payed ("amt" was {}, "amt_paid" was {})'.format(
                             int(action_details["amt"]) * 1000,
-                            raw_invoice["amt_paid"],
-                            node.node_name
-                        )
+                            raw_invoice["amt_paid"]
+                        ),
+                        node=node
                     )
                     checkpoint_helper.set_checkpoint("memo_invalid")
                     continue
@@ -517,7 +525,7 @@ class Runner(object):
                     try:
                         post = Post.objects.get(pk=post_id)
                     except (ObjectDoesNotExist, ValueError):
-                        logger.error("SKIPPING PAYED INVOICE for vote. The post for vote does not exist: {} from node {}".format(action_details, node.node_name))
+                        self.log_error(f"SKIPPING PAYED INVOICE for vote. The post for vote does not exist: {action_details}", node=node)
                         checkpoint_helper.set_checkpoint("invalid_post")
                         continue
 
@@ -582,11 +590,11 @@ class Runner(object):
                     valid = True
                     for keyword in ["post_id", "amt"]:
                         if keyword not in action_details:
-                            logger.warning("Bounty invalid because {} is missing".format(keyword))
+                            self.log_error(f"Bounty invalid because {keyword} is missing", node=node, warning=True)
                             valid = False
 
                     if not valid:
-                        logger.warning("Could not start Bounty: bounty_invalid")
+                        self.log_error("Could not start Bounty: bounty_invalid", node=node, warning=True)
                         checkpoint_helper.set_checkpoint("bounty_invalid")
                         continue
 
@@ -596,7 +604,7 @@ class Runner(object):
                     try:
                         post_obj = Post.objects.get(pk=post_id)
                     except (ObjectDoesNotExist, ValueError):
-                        logger.error("Bounty invalid because post {} does not exist from node {}".format(post_id, node.node_name))
+                        self.log_error(f"Bounty invalid because post {post_id} does not exist", node=node)
                         checkpoint_helper.set_checkpoint("bounty_invalid_post_does_not_exist")
                         continue
 
@@ -611,7 +619,7 @@ class Runner(object):
 
                     checkpoint_helper.set_checkpoint("done", action_type="bonty", action_id=post_id)
                 else:
-                    logger.error("Invalid action: {} from node {}".format(action_details, node.node_name))
+                    self.log_error(f"Invalid action: {action_details}", node=node)
                     checkpoint_helper.set_checkpoint("invalid_action")
                     continue
             else:
@@ -643,7 +651,7 @@ class Runner(object):
                         parent_post_id = int(action_details["parent_post_id"])
                         parent = Post.objects.get(pk=parent_post_id)
                     except (ObjectDoesNotExist, ValueError):
-                        logger.error("The post parent does not exist: {} from node {}".format(action_details, node.node_name))
+                        self.log_error(f"The post parent does not exist: {action_details}", node=node)
                         checkpoint_helper.set_checkpoint("invalid_parent_post")
                         continue
 
