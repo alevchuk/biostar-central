@@ -284,8 +284,6 @@ class Runner(object):
             invoice_list_from_db = {}
             logger.warning(self.add_ckpt("DB has no invoice entry for this node", node=node))
         else:
-            if len(self.all_invoices_from_db[node]) == 0:
-                logger.warning(self.add_ckpt("DB has entry entry for this node, yet no invoices", node=node))
             invoice_list_from_db = self.all_invoices_from_db[node]
 
         # example of invoices_details: {"invoices": [], 'first_index_offset': '5', 'last_index_offset': '72'}
