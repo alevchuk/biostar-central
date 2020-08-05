@@ -29,10 +29,8 @@ The software is open source and free to use under the MIT License.
 
 The documentation:
 
-* [Install](docs/install.md)
 * [Manage](docs/manage.md)
 * [Deploy](docs/deploy.md)
-* [Customize](org/bioconductor/README.md)
 
 The source for the documentation can be found in  the [docs](./docs) folder.
 
@@ -40,11 +38,19 @@ The source for the documentation can be found in  the [docs](./docs) folder.
 
 Prerequisites:
 * Python 2.7
-* pip2.7 install virtualenv
+* Python 2.7 virtualenv
 * Python 3
-* pip3 install virtualenv
+* Python 3 virtualenv
 
 From the Biostar source directory:
+
+    # Install virtualenv
+    sudo pip2.7 install virtualenv
+    sudo pip3 install virtualenv
+
+    # Clone source code
+    git clone https://github.com/alevchuk/ln-central
+    cd ln-central
 
     # Initialize virtual envrionment and install the requirements.
     ./biostar.sh install
@@ -56,11 +62,6 @@ Visit `http://www.lvh.me:8080` to see the site loaded with demo data.
 
 The `www.lvh.me` domain resolves to `127.0.0.1` your local host 
 with a proper domain name. You may just as well use `http://localhost:8080` or `http://127.0.0.1`.
-
-In the demo site the user pubkeys are built from the database ids like so: `1@lvh.me`, `2@lvh.me`.
-
-The user with the pubkey `1@lvh.me` has staff level permissions and
-can also access the admin interface at `http://www.lvh.me:8080/admin/`.
 
 Enjoy.
 
