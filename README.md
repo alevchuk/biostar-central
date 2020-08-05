@@ -55,13 +55,21 @@ From the Biostar source directory:
     # Initialize virtual envrionment and install the requirements.
     ./biostar.sh install
 
-    # Initialize database, import test data, index for searching and run the server.
-    ./biostar.sh init import index run
+    mkdir ~/log
 
-Visit `http://www.lvh.me:8080` to see the site loaded with demo data.
+    # Initialize database, import test data, index for searching
+    ./biostar.sh init-dev import-dev index-dev
+
+    # Run the server
+    ./biostar.sh run
 
 The `www.lvh.me` domain resolves to `127.0.0.1` your local host 
 with a proper domain name. You may just as well use `http://localhost:8080` or `http://127.0.0.1`.
+
+If you accidentally go to HTTPS, instead of HTTP, then you'll get an error that looks like this:
+> UnicodeDecodeError: 'ascii' codec can't decode byte 0xfc in position 9: ordinal not in range(128)
+
+Visit `http://www.lvh.me:8080`, not HTTPS, to see the site loaded with demo data.
 
 Enjoy.
 
