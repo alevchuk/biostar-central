@@ -9,3 +9,4 @@ psycopg2-binary>=2.8.4,<3.0.0
 pytz>=2018.9
 requests>=2.3.0,<3.0.0
 prometheus-client>=0.8.0
+ipython>=5.10.0
