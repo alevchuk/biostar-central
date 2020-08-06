@@ -779,7 +779,9 @@ def run_many():
 
             sleep(BETWEEN_NODES_DELAY)
 
-        if len(exceptions_per_node) >= total_enabled_nodes:
+        if total_enabled_nodes == 0:
+            logger.error("No nodes enabled")
+        elif len(exceptions_per_node) >= total_enabled_nodes:
             logger.error("All nodes has exceptions, e.g. {}".format(exceptions_per_node[node_list[0].node_name]))
 
         runner.log_timing_stats()
