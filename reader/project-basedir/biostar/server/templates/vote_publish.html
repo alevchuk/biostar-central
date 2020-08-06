@@ -56,8 +56,8 @@
     <p>The vote will be published after a payment is made on the Lightning Network. 1 sat equals 1 upvote.
     <a href="{{ customize_vote_url }}">Increase the number of upvotes...</a></p>
     <p>Your invoice for <b>{{ payment_amount|intcomma }} sats</b> is:</p>
-    <pre>{{ pay_req }}</pre>
     <img src="/qr/{{ pay_req }}/qr.svg" />
+    <pre>{{ pay_req }}</pre>
 
     {% regarding_privacy %}
 

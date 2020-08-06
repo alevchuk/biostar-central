@@ -55,8 +55,8 @@
     <p>The post will be published after a payment is made on the Lightning Network using the invoice.
     Payment of <b>{{ payment_amount|intcomma }} sats</b> is required.</p>
     <p>Your invoice is:</p>
-    <pre>{{ pay_req }}</pre>
     <img src="/qr/{{ pay_req }}/qr.svg" />
+    <pre>{{ pay_req }}</pre>
 
 {% else %}
     <div>
