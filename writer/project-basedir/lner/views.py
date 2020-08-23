@@ -72,6 +72,12 @@ class CreateInvoiceViewSet(viewsets.ModelViewSet):
             )
 
         node = LightningNode.objects.get(id=request.POST["node_id"])
+        if not node.enabled:
+            # TODO: Reader should redirect user to a different node
+            user_msg = "Node {} is disabled".format(node.node_name)
+            logger.info("{} so can't add invoice for {}".format(user_msg, memo))
+            raise CreateInvoiceError(user_msg)
+
         request_obj, created = InvoiceRequest.objects.get_or_create(
             lightning_node=node,
             memo=memo
