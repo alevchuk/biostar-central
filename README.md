@@ -1,10 +1,13 @@
-## Biostar: Building Scientific Communities
+## LN Central
 
-[![Build Status][build-image]][build-url] 
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 
-[build-image]: https://travis-ci.org/alevchuk/ln-central.svg?branch=4.0
-[build-url]: https://travis-ci.org/alevchuk/ln-central/builds
+This website's source code (ln-central) is a software fork of [Biostar-central](https://github.com/ialbert/biostar-central). Biostar-central is a forum focusing on bioinformatics, computational genomics and biological data analysis. However, this fork was done to better serve the the lightning network community. For example, ln-central has been integrated to use anonymous lightning network micro-payments instead of traditional single.
+
+
+## Biostar: Building Scientific Communities
+
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 
 Biostar is a Python and Django based Q&A software.
 It is a simple, generic, flexible and extensible Q&A framework.
