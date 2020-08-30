@@ -2,7 +2,9 @@
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 
-This website's source code (ln-central) is a software fork of [Biostar-central](https://github.com/ialbert/biostar-central). Biostar-central is a forum focusing on bioinformatics, computational genomics and biological data analysis. However, this fork was done to better serve the the lightning network community. For example, ln-central has been integrated to use anonymous lightning network micro-payments instead of traditional single.
+Q&A website powered by lightning network
+
+This website's source code (ln-central) is a software fork of [Biostar-central](https://github.com/ialbert/biostar-central). Biostar-central is a forum focusing on bioinformatics, computational genomics and biological data analysis. However, this fork was done to better serve the the lightning network community. For example, ln-central has been integrated to use anonymous lightning network micro-payments instead of traditional Single Sign-on.
 
 
 ## Biostar: Building Scientific Communities
