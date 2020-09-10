@@ -1,5 +1,5 @@
 {% load server_tags %}
-
+{% load humanize %}
 
 <div class="post-body {{ post.get_status_display }} clearfix">
 
@@ -24,7 +24,7 @@
 
     <div class="post vote-box visible-lg visible-md visible-sm visible-xs" data-post_id="{{ post.id }}">
 
-        <div class="count" itemprop="voteCount">{{ post.vote_count }}</div>
+        <div class="count" itemprop="voteCount">{{ post.vote_count|bignum }}</div>
 
         <div class="mark tip" data-toggle="tooltip" data-placement="top" data-type="vote" title="Upvote!">
             <a href="{{ vote_url }}">

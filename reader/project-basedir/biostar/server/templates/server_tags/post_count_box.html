@@ -1,15 +1,16 @@
 {# Renders the countbox for each post #}
 {% load server_tags %}
 {% load humanize %}
+
 <div class="post-row {{ post.get_type_display }} {{ post.get_status_display }}">
 
     <div class="count-box visible-lg visible-md">
         <div class="box vote">
             {% if post.is_toplevel %}
-                <div class="c">{{ post.thread_score }}</div>
+                <div class="c">{{ post.thread_score|bignum }}</div>
                 <div class="t">sats</div>
             {% else %}
-                <div class="c">{{ post.vote_count }}</div>
+                <div class="c">{{ post.vote_count|bignum }}</div>
                 <div class="t">sats</div>
             {% endif %}
         </div>
@@ -24,10 +25,10 @@
     <div class="count-box-sm visible-sm visible-xs">
         <div class="box vote">
             {% if post.is_toplevel %}
-                <div class="c">{{ post.thread_score }}</div>
+                <div class="c">{{ post.thread_score|bignum }}</div>
                 <div class="t">sats</div>
             {% else %}
-                <div class="c">{{ post.vote_count }}</div>
+                <div class="c">{{ post.vote_count|bignum }}</div>
                 <div class="t">sats</div>
             {% endif %}
         </div>
