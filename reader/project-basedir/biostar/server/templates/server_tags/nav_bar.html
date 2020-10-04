@@ -44,9 +44,6 @@
         <a href="{% url 'user-list' %}">
             <i class="fa fa-heart fa-1x" style="margin-left:5px"></i> Community
         </a>
-        <a href="{% url 'badge-list' %}" style="margin-left:5px">
-            <i class="fa fa-trophy fa-1x"></i> Badges
-        </a>
         <a href="{% url 'new-post' %}" style="margin-left:15px">
             <i class="fa fa-plus-circle"></i> New Post
         </a>
@@ -81,13 +78,6 @@
                 <div><i class="fa fa-heart"></i>
                 </div>
                 <div>Community</div>
-            </a>
-        </div>
-
-        <div class="col-sm-1 mid {% active 'badges' topic %}">
-            <a href="{% url 'badge-list' %}" class="navitem">
-                <div><i class="fa fa-trophy"></i></div>
-                <div>Badges</div>
             </a>
         </div>
 
