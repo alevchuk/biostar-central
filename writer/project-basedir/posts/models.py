@@ -374,7 +374,7 @@ class Post(models.Model):
             action="Upvote",
             post_id=self.id,
             unixtime=int(time.time()),
-            amt=1,
+            amt=10,
         )
         memo = json_util.serialize_memo(obj)
         url = reverse("vote-publish", kwargs=dict(memo=memo))
