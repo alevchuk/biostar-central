@@ -384,7 +384,7 @@ class PostDetails(DetailView):
                 if first_active_bounty.award_time <= timezone.now():
                     this_award_granted = True
 
-                    award_expansion_time = award.created + settings.CLAIM_TIMEDELTA
+                    award_expansion_time = first_active_bounty.award_time + settings.CLAIM_TIMEDELTA
                     this_award_expansion_time = award_expansion_time
 
                     if award_expansion_time >= timezone.now():
